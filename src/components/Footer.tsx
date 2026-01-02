@@ -18,7 +18,7 @@ const Footer = () => {
                 Lead<span className="text-gradient">Squad</span>
               </span>
             </div>
-            <p className="text-sm text-muted-foreground mb-2">by MERGE AI</p>
+            <p className="text-sm text-muted-foreground mb-2">Powered by MERGE AI</p>
             <p className="text-primary font-semibold text-sm">Never Miss Another Lead</p>
           </div>
 
