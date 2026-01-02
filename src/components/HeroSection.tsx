@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Play } from "lucide-react";
-import heroImage from "@/assets/hero-squad.jpg";
+import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   const [email, setEmail] = useState("");
@@ -11,14 +10,6 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-hero" />
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
       
       {/* Content */}
