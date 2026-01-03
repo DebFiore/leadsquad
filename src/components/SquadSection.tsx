@@ -3,7 +3,7 @@ import { PhoneCall, Zap, Calendar, Sparkles } from "lucide-react";
 const agents = [
   {
     icon: PhoneCall,
-    emoji: "🎯",
+    emoji: "📞",
     title: "The Inbound Specialist",
     description: "Answers every call in 2 rings. Books appointments while you sleep. Never takes a sick day.",
     color: "from-primary/20 to-primary/5",
