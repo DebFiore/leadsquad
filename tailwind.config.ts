@@ -87,10 +87,23 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "sparkle": {
+          "0%, 100%": { opacity: "0", transform: "scale(0)" },
+          "50%": { opacity: "1", transform: "scale(1)" },
+        },
+        "wand-glow": {
+          "0%, 100%": { filter: "drop-shadow(0 0 2px hsl(var(--primary)))" },
+          "50%": { filter: "drop-shadow(0 0 8px hsl(var(--primary))) drop-shadow(0 0 16px hsl(var(--primary)))" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "sparkle": "sparkle 1.5s ease-in-out infinite",
+        "sparkle-delay-1": "sparkle 1.5s ease-in-out 0.3s infinite",
+        "sparkle-delay-2": "sparkle 1.5s ease-in-out 0.6s infinite",
+        "sparkle-delay-3": "sparkle 1.5s ease-in-out 0.9s infinite",
+        "wand-glow": "wand-glow 2s ease-in-out infinite",
       },
     },
   },

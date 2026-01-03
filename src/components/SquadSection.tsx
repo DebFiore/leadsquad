@@ -1,4 +1,4 @@
-import { PhoneCall, Zap, Calendar, Wand2 } from "lucide-react";
+import { PhoneCall, Zap, Calendar, Wand2, Sparkles } from "lucide-react";
 
 const agents = [
   {
@@ -64,10 +64,15 @@ const SquadSection = () => {
         </div>
 
         {/* The Magic Section */}
-        <div className="relative p-8 md:p-12 rounded-2xl bg-gradient-card border border-border card-shadow">
+        <div className="group relative p-8 md:p-12 rounded-2xl bg-gradient-card border border-border card-shadow">
           <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-              <Wand2 className="w-6 h-6 text-primary" />
+            <div className="relative flex-shrink-0 w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+              <Wand2 className="w-6 h-6 text-primary group-hover:animate-wand-glow transition-all" />
+              {/* Sparkle effects on hover */}
+              <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-primary opacity-0 group-hover:animate-sparkle" />
+              <Sparkles className="absolute -top-2 left-1 w-2 h-2 text-primary opacity-0 group-hover:animate-sparkle-delay-1" />
+              <Sparkles className="absolute top-0 -left-1 w-3 h-3 text-primary opacity-0 group-hover:animate-sparkle-delay-2" />
+              <Sparkles className="absolute -bottom-1 right-0 w-2 h-2 text-primary opacity-0 group-hover:animate-sparkle-delay-3" />
             </div>
             <div>
               <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">The Magic</h3>
