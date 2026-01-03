@@ -40,7 +40,7 @@ const SquadSection = () => {
             Meet Your <span className="text-gradient">Always-On</span> Revenue Squad
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Three AI agents working as one unstoppable team
+            Three AI Agents Working as One Unstoppable Team
           </p>
         </div>
 
