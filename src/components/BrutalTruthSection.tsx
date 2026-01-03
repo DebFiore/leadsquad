@@ -75,8 +75,7 @@ const BrutalTruthSection = () => {
             In the Next <span className="text-gradient">8 Seconds</span>, $4,700 Worth of Leads Will Dial Your Competitors Instead of Waiting for Your Call
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            While you were reading this sentence, 3 leads just went to competitors who answered first. 
-            <span className="text-foreground font-semibold"> 78% of customers buy from whoever contacts them first.</span>
+            Because here's what nobody tells you about the lead game: That prospect who just called you? They've got 4 other numbers written down. That web form they filled out? They submitted it to 5 companies. And <span className="text-foreground font-semibold">78% of the time, their money goes to whoever gets them on the phone first.</span> Not who's cheapest. Not who's been in business longest. Not who provides the best service.
           </p>
         </div>
 
