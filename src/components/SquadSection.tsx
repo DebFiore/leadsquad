@@ -64,23 +64,24 @@ const SquadSection = () => {
         </div>
 
         {/* The Magic Section */}
-        <div className="group relative p-8 md:p-12 rounded-2xl bg-gradient-card border border-border card-shadow">
-          <div className="flex items-start gap-4">
-            <div className="relative flex-shrink-0 w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-              <Wand2 className="w-6 h-6 text-primary group-hover:animate-wand-glow transition-all" />
-              {/* Sparkle effects on hover */}
-              <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-primary opacity-0 group-hover:animate-sparkle" />
-              <Sparkles className="absolute -top-2 left-1 w-2 h-2 text-primary opacity-0 group-hover:animate-sparkle-delay-1" />
-              <Sparkles className="absolute top-0 -left-1 w-3 h-3 text-primary opacity-0 group-hover:animate-sparkle-delay-2" />
-              <Sparkles className="absolute -bottom-1 right-0 w-2 h-2 text-primary opacity-0 group-hover:animate-sparkle-delay-3" />
-            </div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">The Magic</h3>
-              <p className="text-lg text-muted-foreground">
-                Your squad shares intelligence in real-time. When one agent learns something, they all know it instantly. 
-                Plus automatic <span className="text-secondary font-semibold">SMS and email follow-ups</span> ensure no lead escapes.
-              </p>
-            </div>
+        <div className="group relative p-8 md:p-12 rounded-2xl bg-gradient-card border border-border card-shadow overflow-hidden">
+          {/* Wand with sparkles - positioned freely on background */}
+          <div className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-16 h-16 md:w-20 md:h-20">
+            <Wand2 className="w-full h-full text-primary/80 -rotate-45 group-hover:animate-wand-glow transition-all" />
+            {/* Sparkle effects around the magic tip (upper-left) */}
+            <Sparkles className="absolute -top-2 left-0 w-4 h-4 text-primary opacity-0 group-hover:animate-sparkle" />
+            <Sparkles className="absolute -top-4 left-4 w-3 h-3 text-primary opacity-0 group-hover:animate-sparkle-delay-1" />
+            <Sparkles className="absolute top-0 -left-3 w-4 h-4 text-primary opacity-0 group-hover:animate-sparkle-delay-2" />
+            <Sparkles className="absolute -top-1 left-8 w-3 h-3 text-primary opacity-0 group-hover:animate-sparkle-delay-3" />
+            <Sparkles className="absolute top-2 -left-2 w-2 h-2 text-primary opacity-0 group-hover:animate-sparkle" />
+          </div>
+          
+          <div className="ml-20 md:ml-28">
+            <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">The Magic</h3>
+            <p className="text-lg text-muted-foreground">
+              Your squad shares intelligence in real-time. When one agent learns something, they all know it instantly. 
+              Plus automatic <span className="text-secondary font-semibold">SMS and email follow-ups</span> ensure no lead escapes.
+            </p>
           </div>
         </div>
       </div>
