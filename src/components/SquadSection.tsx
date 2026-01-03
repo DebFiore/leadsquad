@@ -11,7 +11,7 @@ const agents = [
   },
   {
     icon: Zap,
-    emoji: "🚀",
+    emoji: "⏱️",
     title: "The Speed Demon",
     description: "Calls online leads within 7 seconds of form submission. First contact = first sale.",
     color: "from-secondary/20 to-secondary/5",
