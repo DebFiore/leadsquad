@@ -17,7 +17,7 @@ const plans = [
     features: [
       "Everything in Starter",
       "2,000 minutes",
-      "Advanced lead sources",
+      "Advanced WebHook Integration",
       "4 users",
       "Priority support",
     ],
