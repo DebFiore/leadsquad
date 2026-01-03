@@ -72,7 +72,7 @@ const BrutalTruthSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
-            <span className="text-gradient">73%</span> of Your Leads Are Already Gone
+            In the Next <span className="text-gradient">8 Seconds</span>, $4,700 Worth of Leads Will Dial Your Competitors Instead of Waiting for Your Call
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
             While you were reading this sentence, 3 leads just went to competitors who answered first. 
