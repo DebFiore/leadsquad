@@ -1,8 +1,8 @@
-import { Phone, Zap, Calendar, Sparkles } from "lucide-react";
+import { PhoneCall, Zap, Calendar, Sparkles } from "lucide-react";
 
 const agents = [
   {
-    icon: Phone,
+    icon: PhoneCall,
     emoji: "🎯",
     title: "The Inbound Specialist",
     description: "Answers every call in 2 rings. Books appointments while you sleep. Never takes a sick day.",
