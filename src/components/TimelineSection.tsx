@@ -10,14 +10,14 @@ const steps = [
 
 const TimelineSection = () => {
   return (
-    <section className="section-padding bg-background">
+    <section className="section-padding section-light">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 rounded-full bg-secondary/10 text-secondary text-sm font-semibold mb-6">
+          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
             From Zero to Domination
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 text-foreground">
             Live in <span className="text-gradient">12 Minutes</span>, Not 12 Weeks
           </h2>
         </div>
@@ -26,13 +26,13 @@ const TimelineSection = () => {
         <div className="max-w-2xl mx-auto">
           <div className="relative">
             {/* Line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-secondary to-primary/50" />
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary/50 to-primary/20" />
 
             {/* Steps */}
             {steps.map((step, index) => (
               <div key={index} className="relative flex items-start gap-6 mb-8 last:mb-0 group">
                 {/* Dot */}
-                <div className="relative z-10 flex-shrink-0 w-16 h-16 rounded-full bg-muted border-2 border-primary/30 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/10 transition-all duration-300">
+                <div className="relative z-10 flex-shrink-0 w-16 h-16 rounded-full bg-white border-2 border-primary/30 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/10 transition-all duration-300">
                   <span className="text-sm font-bold text-primary">{step.time}</span>
                 </div>
 
