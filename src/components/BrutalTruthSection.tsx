@@ -67,11 +67,11 @@ const AnimatedNumber = ({ value, suffix }: { value: number; suffix: string }) =>
 
 const BrutalTruthSection = () => {
   return (
-    <section className="section-padding bg-background">
+    <section className="section-padding section-light">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 text-foreground">
             In the Next <span className="text-gradient">8 Seconds</span>, $4,700 Worth of Leads Will Dial Your Competitors Instead of Waiting for Your Call
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -84,7 +84,7 @@ const BrutalTruthSection = () => {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="relative group p-8 rounded-2xl bg-gradient-card border border-border card-shadow hover:border-primary/50 transition-all duration-500"
+              className="relative group p-8 rounded-2xl bg-white border border-[hsl(var(--light-border))] card-shadow-light hover:border-primary/50 transition-all duration-500"
             >
               <div className="absolute top-4 right-4">
                 <stat.icon className="w-6 h-6 text-primary opacity-50 group-hover:opacity-100 transition-opacity" />

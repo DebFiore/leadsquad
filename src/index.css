@@ -44,12 +44,23 @@
     --sky: 201 100% 78%;
     --sky-dark: 201 80% 50%;
 
+    /* Light section tokens */
+    --light-bg: 0 0% 100%;
+    --light-fg: 233 50% 15%;
+    --light-muted: 220 15% 95%;
+    --light-muted-fg: 233 30% 40%;
+    --light-border: 220 15% 88%;
+    --light-card: 0 0% 100%;
+    --light-card-border: 220 15% 85%;
+
     --gradient-hero: linear-gradient(135deg, hsl(233 97% 9%) 0%, hsl(233 60% 18%) 100%);
     --gradient-orange: linear-gradient(135deg, hsl(27 92% 53%) 0%, hsl(27 100% 60%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(233 60% 15%) 0%, hsl(233 80% 12%) 100%);
+    --gradient-card-light: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 15% 98%) 100%);
     
     --shadow-glow: 0 0 40px hsl(27 92% 53% / 0.3);
     --shadow-card: 0 20px 40px hsl(233 97% 5% / 0.5);
+    --shadow-card-light: 0 4px 20px hsl(220 15% 80% / 0.4);
     --shadow-button: 0 4px 20px hsl(27 92% 53% / 0.4);
 
     --sidebar-background: 233 80% 12%;
@@ -102,12 +113,20 @@
     background: var(--gradient-card);
   }
 
+  .bg-gradient-card-light {
+    background: var(--gradient-card-light);
+  }
+
   .glow-orange {
     box-shadow: var(--shadow-glow);
   }
 
   .card-shadow {
     box-shadow: var(--shadow-card);
+  }
+
+  .card-shadow-light {
+    box-shadow: var(--shadow-card-light);
   }
 
   .button-shadow {
@@ -120,6 +139,33 @@
 
   .container-narrow {
     @apply max-w-6xl mx-auto;
+  }
+
+  /* Light section styling */
+  .section-light {
+    background-color: hsl(var(--light-bg));
+    color: hsl(var(--light-fg));
+  }
+
+  .section-light .text-foreground {
+    color: hsl(var(--light-fg));
+  }
+
+  .section-light .text-muted-foreground {
+    color: hsl(var(--light-muted-fg));
+  }
+
+  .section-light .bg-card {
+    background-color: hsl(var(--light-card));
+    border-color: hsl(var(--light-card-border));
+  }
+
+  .section-light .border-border {
+    border-color: hsl(var(--light-border));
+  }
+
+  .section-light .bg-muted {
+    background-color: hsl(var(--light-muted));
   }
 }
 
