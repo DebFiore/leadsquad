@@ -1,42 +1,39 @@
-import { PhoneCall, Zap, Calendar, Wand2, Sparkles } from "lucide-react";
+import { Wand2, Sparkles } from "lucide-react";
 
 const agents = [
   {
-    icon: PhoneCall,
     emoji: "📞",
     title: "The Inbound Specialist",
     description: "Answers every call in 2 rings. Books appointments while you sleep. Never takes a sick day.",
-    color: "from-primary/20 to-primary/5",
+    color: "from-primary/10 to-primary/5",
     borderColor: "border-primary/30",
   },
   {
-    icon: Zap,
     emoji: "⏱️",
     title: "The Speed Demon",
     description: "Calls online leads within 7 seconds of form submission. First contact = first sale.",
-    color: "from-secondary/20 to-secondary/5",
-    borderColor: "border-secondary/30",
+    color: "from-primary/10 to-primary/5",
+    borderColor: "border-primary/30",
   },
   {
-    icon: Calendar,
     emoji: "📅",
     title: "The Closer's Assistant",
     description: "Qualifies leads and fills your calendar with ready-to-buy appointments. Your closers only talk to hot prospects.",
-    color: "from-orange-glow/20 to-orange-glow/5",
-    borderColor: "border-orange/30",
+    color: "from-primary/10 to-primary/5",
+    borderColor: "border-primary/30",
   },
 ];
 
 const SquadSection = () => {
   return (
-    <section id="features" className="section-padding bg-muted/30">
+    <section id="features" className="section-padding section-light">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
             Your Unfair Advantage
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 text-foreground">
             Meet Your <span className="text-gradient">Always-On</span> Revenue Squad
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -51,7 +48,7 @@ const SquadSection = () => {
               key={index}
               className={`relative group p-8 rounded-2xl bg-gradient-to-b ${agent.color} border ${agent.borderColor} backdrop-blur-sm hover:scale-105 transition-all duration-500`}
             >
-              <div className="text-5xl mb-6">{agent.emoji}</div>
+              <div className="text-4xl mb-6">{agent.emoji}</div>
               <h3 className="text-xl font-bold mb-4 text-foreground">{agent.title}</h3>
               <p className="text-muted-foreground leading-relaxed">{agent.description}</p>
               
