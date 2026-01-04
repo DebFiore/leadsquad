@@ -34,7 +34,7 @@ const FeaturesSection = () => {
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
             If You Can Order Pizza Online,<br />
-            <span className="text-gradient">You Can Deploy Lead Squad</span>
+            <span className="text-gradient">You Can Deploy LeadSquad</span>
           </h2>
         </div>
 
