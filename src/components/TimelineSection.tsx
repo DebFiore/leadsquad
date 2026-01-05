@@ -10,7 +10,7 @@ const steps = [
 
 const TimelineSection = () => {
   return (
-    <section className="section-padding bg-background">
+    <section className="section-padding section-light">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
