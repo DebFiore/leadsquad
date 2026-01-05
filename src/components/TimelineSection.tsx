@@ -32,7 +32,7 @@ const TimelineSection = () => {
             {steps.map((step, index) => (
               <div key={index} className="relative flex items-start gap-6 mb-8 last:mb-0 group">
                 {/* Dot */}
-                <div className="relative z-10 flex-shrink-0 w-16 h-16 rounded-full bg-muted border-2 border-primary/30 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/10 transition-all duration-300">
+                <div className="relative z-10 flex-shrink-0 w-16 h-16 rounded-full bg-navy border-2 border-primary/30 flex items-center justify-center group-hover:border-primary transition-all duration-300">
                   <span className="text-sm font-bold text-primary">{step.time}</span>
                 </div>
 
