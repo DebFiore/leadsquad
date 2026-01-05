@@ -1,11 +1,11 @@
 import { Check, Rocket } from "lucide-react";
 
 const steps = [
-  { time: "3:00", label: "Sign up and choose your plan" },
-  { time: "3:05", label: "Connect your CRM (one click)" },
-  { time: "3:08", label: "Pick your AI voices and scripts" },
-  { time: "3:12", label: "Your squad goes live" },
-  { time: "3:13", label: "Watch your first lead get booked" },
+  { time: "3:00", label: "Sign Up And Choose Your Plan" },
+  { time: "3:05", label: "Connect Your CRM (One Click)" },
+  { time: "3:08", label: "Pick Your AI Voices And Scripts" },
+  { time: "3:12", label: "Your Squad Goes Live" },
+  { time: "3:13", label: "Watch Your First Lead Get Booked" },
 ];
 
 const TimelineSection = () => {
