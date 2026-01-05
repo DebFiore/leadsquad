@@ -7,10 +7,6 @@ import {
   BarChart3, 
   MessageSquare, 
   Calendar,
-  Linkedin,
-  Youtube,
-  Facebook,
-  Instagram
 } from "lucide-react";
 
 const integrationCategories = [
@@ -19,12 +15,12 @@ const integrationCategories = [
     title: "CRM Platforms",
     description: "Seamlessly connect with your existing CRM system",
     integrations: [
-      { name: "HighLevel", status: "popular" },
-      { name: "Salesforce", status: "popular" },
-      { name: "HubSpot", status: "popular" },
-      { name: "Pipedrive", status: "available" },
-      { name: "Zoho CRM", status: "available" },
-      { name: "Microsoft Dynamics", status: "available" },
+      { name: "HighLevel", slug: "gohighlevel", status: "popular" },
+      { name: "Salesforce", slug: "salesforce", status: "popular" },
+      { name: "HubSpot", slug: "hubspot", status: "popular" },
+      { name: "Pipedrive", slug: "pipedrive", status: "available" },
+      { name: "Zoho CRM", slug: "zoho", status: "available" },
+      { name: "Microsoft Dynamics", slug: "dynamics365", status: "available" },
     ],
   },
   {
@@ -32,12 +28,12 @@ const integrationCategories = [
     title: "Social Platforms",
     description: "Expand your reach across social networks",
     integrations: [
-      { name: "LinkedIn", status: "popular" },
-      { name: "Twitter", status: "available" },
-      { name: "Facebook", status: "available" },
-      { name: "Instagram", status: "available" },
-      { name: "YouTube", status: "available" },
-      { name: "TikTok", status: "available" },
+      { name: "LinkedIn", slug: "linkedin", status: "popular" },
+      { name: "Twitter", slug: "x", status: "available" },
+      { name: "Facebook", slug: "facebook", status: "available" },
+      { name: "Instagram", slug: "instagram", status: "available" },
+      { name: "YouTube", slug: "youtube", status: "available" },
+      { name: "TikTok", slug: "tiktok", status: "available" },
     ],
   },
   {
@@ -45,12 +41,12 @@ const integrationCategories = [
     title: "Email Platforms",
     description: "Enhance your email marketing campaigns",
     integrations: [
-      { name: "Mailchimp", status: "popular" },
-      { name: "Klaviyo", status: "popular" },
-      { name: "SendGrid", status: "available" },
-      { name: "Constant Contact", status: "available" },
-      { name: "Mailgun", status: "available" },
-      { name: "Postmark", status: "available" },
+      { name: "Mailchimp", slug: "mailchimp", status: "popular" },
+      { name: "Klaviyo", slug: "klaviyo", status: "popular" },
+      { name: "SendGrid", slug: "sendgrid", status: "available" },
+      { name: "Constant Contact", slug: "constantcontact", status: "available" },
+      { name: "Mailgun", slug: "mailgun", status: "available" },
+      { name: "Postmark", slug: "postmark", status: "available" },
     ],
   },
   {
@@ -58,12 +54,12 @@ const integrationCategories = [
     title: "Analytics & Data",
     description: "Connect with analytics and data enrichment tools",
     integrations: [
-      { name: "Google Analytics", status: "available" },
-      { name: "Adobe Analytics", status: "available" },
-      { name: "Clearbit", status: "available" },
-      { name: "ZoomInfo", status: "available" },
-      { name: "Apollo", status: "available" },
-      { name: "Triple Whale", status: "available" },
+      { name: "Google Analytics", slug: "googleanalytics", status: "available" },
+      { name: "Adobe Analytics", slug: "adobe", status: "available" },
+      { name: "Clearbit", slug: "clearbit", status: "available" },
+      { name: "ZoomInfo", slug: "zoominfo", status: "available" },
+      { name: "Apollo", slug: "apollo", status: "available" },
+      { name: "Segment", slug: "segment", status: "available" },
     ],
   },
   {
@@ -71,12 +67,12 @@ const integrationCategories = [
     title: "Communication",
     description: "Integrate with messaging and communication tools",
     integrations: [
-      { name: "Slack", status: "popular" },
-      { name: "Microsoft Teams", status: "available" },
-      { name: "Discord", status: "available" },
-      { name: "Messenger", status: "available" },
-      { name: "WhatsApp", status: "popular" },
-      { name: "Telegram", status: "available" },
+      { name: "Slack", slug: "slack", status: "popular" },
+      { name: "Microsoft Teams", slug: "microsoftteams", status: "available" },
+      { name: "Discord", slug: "discord", status: "available" },
+      { name: "Messenger", slug: "messenger", status: "available" },
+      { name: "WhatsApp", slug: "whatsapp", status: "popular" },
+      { name: "Telegram", slug: "telegram", status: "available" },
     ],
   },
   {
@@ -84,12 +80,12 @@ const integrationCategories = [
     title: "Scheduling",
     description: "Sync with calendar and scheduling applications",
     integrations: [
-      { name: "Calendly", status: "popular" },
-      { name: "Acuity", status: "available" },
-      { name: "Google Calendar", status: "available" },
-      { name: "Outlook Calendar", status: "available" },
-      { name: "Zoom", status: "available" },
-      { name: "Cal.com", status: "available" },
+      { name: "Calendly", slug: "calendly", status: "popular" },
+      { name: "Acuity", slug: "acuityscheduling", status: "available" },
+      { name: "Google Calendar", slug: "googlecalendar", status: "available" },
+      { name: "Outlook", slug: "microsoftoutlook", status: "available" },
+      { name: "Zoom", slug: "zoom", status: "available" },
+      { name: "Cal.com", slug: "caldotcom", status: "available" },
     ],
   },
 ];
@@ -154,9 +150,18 @@ const Integrations = () => {
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
                     {category.integrations.map((integration, idx) => (
                       <div key={idx} className="flex flex-col items-center text-center">
-                        {/* Integration Icon Placeholder */}
-                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center mb-2 text-xs font-bold text-muted-foreground">
-                          {getInitials(integration.name)}
+                        {/* Integration Icon */}
+                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center mb-2 p-2">
+                          <img 
+                            src={`https://cdn.simpleicons.org/${integration.slug}`}
+                            alt={integration.name}
+                            className="w-8 h-8 object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.innerHTML = `<span class="text-xs font-bold text-muted-foreground">${getInitials(integration.name)}</span>`;
+                            }}
+                          />
                         </div>
                         <span className="text-xs font-medium text-foreground mb-1 line-clamp-1">
                           {integration.name}
