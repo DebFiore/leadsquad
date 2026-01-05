@@ -42,7 +42,7 @@ const plans = [
 
 const PricingSection = () => {
   return (
-    <section id="pricing" className="section-padding section-light">
+    <section id="pricing" className="section-padding bg-background">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
