@@ -2,7 +2,7 @@ import logo from "@/assets/leadsquad-logo.png";
 
 const Footer = () => {
   const quickLinks = ["How It Works", "Features", "Integrations"];
-  const resourceLinks = ["Blog", "Case Studies", "Help Center"];
+  const resourceLinks = ["Blog", "FAQ", "Help Center"];
 
   return (
     <footer className="bg-card border-t border-border">
