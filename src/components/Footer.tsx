@@ -88,7 +88,7 @@ const Footer = () => {
             <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy
             </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms
             </a>
             <a href="mailto:support@leadsquad.ai" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
