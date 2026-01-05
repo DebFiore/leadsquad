@@ -26,7 +26,7 @@ const plans = [
   },
   {
     name: "Managed Services",
-    price: "Custom",
+    price: "$1,497",
     period: "",
     features: [
       "We build and manage everything",
@@ -42,7 +42,7 @@ const plans = [
 
 const PricingSection = () => {
   return (
-    <section id="pricing" className="section-padding bg-muted/30">
+    <section id="pricing" className="section-padding section-light">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
