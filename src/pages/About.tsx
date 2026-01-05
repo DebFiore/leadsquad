@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import mergeAiWorkflow from "@/assets/merge-ai-workflow.png";
 
 const About = () => {
   return (
@@ -23,6 +24,13 @@ const About = () => {
           </section>
 
           <section className="mb-12">
+            <div className="rounded-lg overflow-hidden mb-8">
+              <img 
+                src={mergeAiWorkflow} 
+                alt="MERGE AI team planning workflow with AI agents" 
+                className="w-full h-auto"
+              />
+            </div>
             <h2 className="text-2xl font-semibold text-foreground mb-4">The Birth of AI-Powered Solutions</h2>
             <p className="text-muted-foreground mb-4">
               In 2023, we launched MERGE AI to solve this problem using cutting-edge artificial intelligence. We built sophisticated AI agents and workflows that transformed how enterprise businesses handled leads. Our systems could respond in seconds, qualify prospects intelligently, and book appointments 24/7.
