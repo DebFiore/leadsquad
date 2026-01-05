@@ -1,15 +1,13 @@
 import logo from "@/assets/leadsquad-logo.png";
 
 const Footer = () => {
-  const productLinks = ["How It Works", "Features", "Integrations"];
-  const pricingLinks = ["Starter - $197", "Professional - $497", "Managed Services"];
+  const quickLinks = ["How It Works", "Features", "Integrations"];
   const resourceLinks = ["Blog", "Case Studies", "Help Center"];
-  const companyLinks = ["About", "Contact", "Careers"];
 
   return (
     <footer className="bg-card border-t border-border">
       <div className="container-narrow mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-1">
@@ -22,27 +20,13 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground">Powered by MERGE AI</p>
           </div>
 
-          {/* Product */}
+          {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Product</h4>
+            <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
             <ul className="space-y-3">
-              {productLinks.map((link) => (
+              {quickLinks.map((link) => (
                 <li key={link}>
                   <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Pricing */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Pricing</h4>
-            <ul className="space-y-3">
-              {pricingLinks.map((link) => (
-                <li key={link}>
-                  <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                     {link}
                   </a>
                 </li>
