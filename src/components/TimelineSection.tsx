@@ -56,9 +56,9 @@ const TimelineSection = () => {
 
         {/* Bottom message */}
         <div className="mt-16 text-center">
-          <p className="text-xl text-muted-foreground flex items-center justify-center gap-2">
-            <Rocket className="w-5 h-5 text-primary" />
-            No developers. No training. No IT department. <span className="text-foreground font-semibold">Just results.</span>
+          <p className="text-2xl md:text-3xl text-muted-foreground flex items-center justify-center gap-2">
+            <Rocket className="w-6 h-6 text-primary" />
+            No Developers. No Training. No IT Department. <span className="text-foreground font-semibold">Just Results.</span>
           </p>
         </div>
       </div>
