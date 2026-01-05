@@ -7,6 +7,14 @@ const About = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container-narrow mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="rounded-lg overflow-hidden mb-12">
+          <img 
+            src={mergeAiWorkflow} 
+            alt="MERGE AI team planning workflow with AI agents" 
+            className="w-full h-auto"
+          />
+        </div>
+        
         <article className="prose prose-lg dark:prose-invert max-w-none">
           <h1 className="text-4xl font-bold text-foreground mb-8">About LeadSquad</h1>
 
@@ -24,13 +32,6 @@ const About = () => {
           </section>
 
           <section className="mb-12">
-            <div className="rounded-lg overflow-hidden mb-8">
-              <img 
-                src={mergeAiWorkflow} 
-                alt="MERGE AI team planning workflow with AI agents" 
-                className="w-full h-auto"
-              />
-            </div>
             <h2 className="text-2xl font-semibold text-foreground mb-4">The Birth of AI-Powered Solutions</h2>
             <p className="text-muted-foreground mb-4">
               In 2023, we launched MERGE AI to solve this problem using cutting-edge artificial intelligence. We built sophisticated AI agents and workflows that transformed how enterprise businesses handled leads. Our systems could respond in seconds, qualify prospects intelligently, and book appointments 24/7.
