@@ -50,15 +50,15 @@ const TestimonialsSection = () => {
               </div>
 
               {/* Quote */}
-              <p className="text-lg text-foreground mb-6 leading-relaxed">
+              <p className="text-lg text-white mb-6 leading-relaxed">
                 "{testimonial.quote}"
               </p>
 
               {/* Author */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-foreground">{testimonial.author}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.company}</p>
+                  <p className="font-semibold text-white">{testimonial.author}</p>
+                  <p className="text-sm text-white/70">{testimonial.company}</p>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold">
                   {testimonial.metric}
