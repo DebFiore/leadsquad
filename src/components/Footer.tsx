@@ -12,14 +12,14 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-1">
               <img src={logo} alt="LeadSquad" className="h-14 w-auto" />
               <span className="text-xl font-bold">
                 Lead<span className="text-gradient">Squad</span>
               </span>
             </div>
-            <p className="text-sm text-muted-foreground mb-2">Powered by MERGE AI</p>
-            <p className="text-primary font-semibold text-sm">Never Miss Another Lead</p>
+            <p className="text-primary font-semibold text-sm mb-2">Never Miss Another Lead</p>
+            <p className="text-sm text-muted-foreground">Powered by MERGE AI</p>
           </div>
 
           {/* Product */}
