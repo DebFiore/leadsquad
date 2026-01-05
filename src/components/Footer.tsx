@@ -85,7 +85,7 @@ const Footer = () => {
             © 2025 LeadSquad. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy
             </a>
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
