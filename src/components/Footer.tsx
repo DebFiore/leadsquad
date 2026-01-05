@@ -17,7 +17,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-primary font-semibold text-sm mb-2">Never Miss Another Lead</p>
-            <p className="text-sm text-muted-foreground">Powered by MERGE AI</p>
+            <a href="https://mergemedia.ai" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Powered by MERGE AI</a>
           </div>
 
           {/* Quick Links */}
