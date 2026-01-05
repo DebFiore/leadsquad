@@ -47,7 +47,7 @@ const PricingSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
-            Your Competition Starts Using This Tomorrow
+            3 Agents. One Mission. 24/7 Lead Response
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
             Lock In Your <span className="text-gradient">Market Advantage</span> Today
