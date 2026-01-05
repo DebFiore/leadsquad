@@ -2,7 +2,6 @@ import logo from "@/assets/leadsquad-logo.png";
 
 const Footer = () => {
   const quickLinks = ["How It Works", "Features", "Integrations"];
-  const resourceLinks = ["Blog", "FAQ", "Help Center"];
 
   return (
     <footer className="bg-card border-t border-border">
@@ -46,13 +45,21 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Resources</h4>
             <ul className="space-y-3">
-              {resourceLinks.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a href="/#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Help Center
+                </a>
+              </li>
             </ul>
           </div>
 
