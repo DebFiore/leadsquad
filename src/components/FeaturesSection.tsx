@@ -25,7 +25,7 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section className="section-padding bg-muted/30">
+    <section id="features" className="section-padding bg-muted/30">
       <div className="container-narrow mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
