@@ -73,27 +73,24 @@ const HowItWorksSection = () => {
         </div>
 
         {/* Result callout */}
-        <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-navy to-navy-light mb-12">
+        <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <TrendingUp className="w-8 h-8 text-primary" />
-            <span className="text-2xl md:text-3xl font-black text-white">
+            <span className="text-2xl md:text-3xl font-black text-navy">
               The Result:
             </span>
           </div>
-          <p className="text-xl md:text-2xl text-white/90">
+          <p className="text-xl md:text-2xl text-navy/80">
             You capture{" "}
             <span className="text-primary font-bold">73% more revenue</span>{" "}
             without hiring a single person.
           </p>
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        {/* CTA */}
+        <div className="flex justify-center">
           <Button variant="hero" size="lg">
-            See Your Squad in Action
-          </Button>
-          <Button variant="outline" size="lg">
-            Start Free Trial
+            Get Started
           </Button>
         </div>
       </div>
