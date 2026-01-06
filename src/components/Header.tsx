@@ -13,21 +13,26 @@ const Header = () => {
             </span>
           </div>
           
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-              Pricing
-            </a>
-            <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
-              FAQ
-            </a>
-          </nav>
+          <div className="flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
+                Features
+              </a>
+              <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </a>
+              <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
+                FAQ
+              </a>
+              <a href="/login" className="text-muted-foreground hover:text-foreground transition-colors">
+                Log In
+              </a>
+            </nav>
 
-          <Button variant="hero" size="sm">
-            Get Started
-          </Button>
+            <Button variant="hero" size="sm">
+              Get Started
+            </Button>
+          </div>
         </div>
       </div>
     </header>
