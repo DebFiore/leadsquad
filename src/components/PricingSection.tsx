@@ -25,6 +25,7 @@ const plans = [
   },
   {
     name: "SCALE",
+    description: "For ambitious businesses handling serious lead volume across multiple channels and team members.",
     price: "$497",
     period: "/month",
     features: [
