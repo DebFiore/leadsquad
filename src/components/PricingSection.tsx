@@ -89,7 +89,7 @@ const PricingSection = () => {
               )}
 
               {/* Plan name */}
-              <h3 className="text-xl font-bold mb-2 text-foreground">{plan.name}</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground text-center">{plan.name}</h3>
 
               {/* Description */}
               {plan.description && (
