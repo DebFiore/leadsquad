@@ -8,6 +8,12 @@ import {
   MessageSquare, 
   Calendar,
 } from "lucide-react";
+import klaviyoLogo from "@/assets/integrations/klaviyo.png";
+
+// Custom logos for integrations not available on simple-icons
+const customLogos: Record<string, string> = {
+  klaviyo: klaviyoLogo,
+};
 
 const integrationCategories = [
   {
@@ -153,7 +159,7 @@ const Integrations = () => {
                         {/* Integration Icon */}
                         <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center mb-2 p-2">
                           <img 
-                            src={`https://cdn.simpleicons.org/${integration.slug}`}
+                            src={customLogos[integration.slug] || `https://cdn.simpleicons.org/${integration.slug}`}
                             alt={integration.name}
                             className="w-8 h-8 object-contain"
                             onError={(e) => {
