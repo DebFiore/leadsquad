@@ -22,7 +22,7 @@ const HeroSection = () => {
           </div>
 
           {/* Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight sm:leading-snug md:leading-normal lg:leading-relaxed mb-6 animate-fade-up" style={{ animationDelay: '0.1s' }}>
+         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 animate-fade-up" style={{ animationDelay: '0.1s' }}>
             Stop Losing{" "}
             <span className="text-gradient">$25,000-$75,000</span>{" "}
             Every Month to Missed Calls, Slow Follow-Ups, and Scheduling Chaos
