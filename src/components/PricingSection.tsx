@@ -39,7 +39,7 @@ const plans = [
       "GDPR & HIPAA Compliance",
     ],
     popular: true,
-    cta: "Deploy Now",
+    cta: "GET STARTED",
   },
   {
     name: "MANAGED SERVICES",
