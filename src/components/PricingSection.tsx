@@ -4,6 +4,7 @@ import { Check, Star, Phone } from "lucide-react";
 const plans = [
   {
     name: "STARTER",
+    description: "For solopreneurs and small teams ready to multiply their lead conversion without multiplying their costs.",
     price: "$197",
     period: "/month",
     features: [
@@ -20,7 +21,7 @@ const plans = [
       "Chat, Slack & Email Support",
     ],
     popular: false,
-    cta: "Deploy Now",
+    cta: "GET STARTED",
   },
   {
     name: "SCALE",
@@ -88,13 +89,28 @@ const PricingSection = () => {
               )}
 
               {/* Plan name */}
-              <h3 className="text-xl font-bold mb-4 text-foreground">{plan.name}</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground">{plan.name}</h3>
+
+              {/* Description */}
+              {plan.description && (
+                <p className="text-sm text-muted-foreground mb-4 text-center">{plan.description}</p>
+              )}
 
               {/* Price */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <span className="text-4xl md:text-5xl font-black text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground">{plan.period}</span>
               </div>
+
+              {/* CTA below price */}
+              <Button
+                variant={plan.popular ? "hero" : "outline"}
+                className="w-full mb-6"
+                size="lg"
+              >
+                {plan.isCustom && <Phone className="w-4 h-4 mr-2" />}
+                {plan.cta}
+              </Button>
 
               {/* Features */}
               <ul className="space-y-3 mb-8">
@@ -105,16 +121,6 @@ const PricingSection = () => {
                   </li>
                 ))}
               </ul>
-
-              {/* CTA */}
-              <Button
-                variant={plan.popular ? "hero" : "outline"}
-                className="w-full"
-                size="lg"
-              >
-                {plan.isCustom && <Phone className="w-4 h-4 mr-2" />}
-                {plan.cta}
-              </Button>
             </div>
           ))}
         </div>
