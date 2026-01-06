@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Star, Phone } from "lucide-react";
 
@@ -5,7 +6,8 @@ const plans = [
   {
     name: "STARTER",
     description: "For solopreneurs and small teams ready to multiply their lead conversion without multiplying their costs.",
-    price: "$197",
+    monthlyPrice: "$197",
+    annualPrice: "$150",
     period: "/month",
     features: [
       "1 Squad / 3 AI Agents",
@@ -26,7 +28,8 @@ const plans = [
   {
     name: "SCALE",
     description: "For ambitious businesses handling serious lead volume across multiple channels and team members.",
-    price: "$497",
+    monthlyPrice: "$497",
+    annualPrice: "$450",
     period: "/month",
     features: [
       "Everything in Starter, Plus:",
@@ -44,7 +47,8 @@ const plans = [
   {
     name: "MANAGED SERVICES",
     description: "For businesses that want white-glove service with experts handling every detail of their AI lead conversion.",
-    price: "Let's Talk",
+    monthlyPrice: "Let's Talk",
+    annualPrice: "Let's Talk",
     period: "",
     features: [
       "We Build and Manage Everything",
@@ -59,6 +63,8 @@ const plans = [
 ];
 
 const PricingSection = () => {
+  const [isAnnual, setIsAnnual] = useState(false);
+
   return (
     <section id="pricing" className="section-padding bg-background">
       <div className="container-narrow mx-auto">
@@ -70,6 +76,30 @@ const PricingSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6">
             Lock In Your <span className="text-gradient">Market Advantage</span> Today
           </h2>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <button
+              onClick={() => setIsAnnual(false)}
+              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
+                !isAnnual
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setIsAnnual(true)}
+              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
+                isAnnual
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Annual
+            </button>
+          </div>
         </div>
 
         {/* Pricing Cards */}
@@ -100,7 +130,9 @@ const PricingSection = () => {
 
               {/* Price */}
               <div className="mb-4 text-center">
-                <span className="text-4xl md:text-5xl font-black text-foreground">{plan.price}</span>
+                <span className="text-4xl md:text-5xl font-black text-foreground">
+                  {isAnnual ? plan.annualPrice : plan.monthlyPrice}
+                </span>
                 <span className="text-muted-foreground">{plan.period}</span>
               </div>
 
