@@ -3,7 +3,7 @@ import { Check, Star, Phone } from "lucide-react";
 
 const plans = [
   {
-    name: "Starter",
+    name: "STARTER",
     price: "$197",
     period: "/month",
     features: [
@@ -23,7 +23,7 @@ const plans = [
     cta: "Deploy Now",
   },
   {
-    name: "Scale",
+    name: "SCALE",
     price: "$497",
     period: "/month",
     features: [
@@ -40,7 +40,7 @@ const plans = [
     cta: "Deploy Now",
   },
   {
-    name: "Managed Services",
+    name: "MANAGED SERVICES",
     price: "$1,497",
     period: "",
     features: [
