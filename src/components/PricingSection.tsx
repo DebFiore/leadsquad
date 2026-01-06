@@ -99,7 +99,7 @@ const PricingSection = () => {
               )}
 
               {/* Price */}
-              <div className="mb-4">
+              <div className="mb-4 text-center">
                 <span className="text-4xl md:text-5xl font-black text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground">{plan.period}</span>
               </div>
