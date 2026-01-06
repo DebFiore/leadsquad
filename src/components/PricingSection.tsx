@@ -141,9 +141,16 @@ const PricingSection = () => {
                 variant={plan.popular ? "hero" : "outline"}
                 className="w-full mb-6"
                 size="lg"
+                asChild={plan.isCustom}
               >
-                {plan.isCustom && <Phone className="w-4 h-4 mr-2" />}
-                {plan.cta}
+                {plan.isCustom ? (
+                  <a href="https://calendly.com/mergeai/leadsquad-managed-services" target="_blank" rel="noopener noreferrer">
+                    <Phone className="w-4 h-4 mr-2" />
+                    {plan.cta}
+                  </a>
+                ) : (
+                  plan.cta
+                )}
               </Button>
 
               {/* Features */}
