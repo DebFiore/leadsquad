@@ -43,7 +43,8 @@ const plans = [
   },
   {
     name: "MANAGED SERVICES",
-    price: "$1,497",
+    description: "For businesses that want white-glove service with experts handling every detail of their AI lead conversion.",
+    price: "Let's Talk",
     period: "",
     features: [
       "We Build and Manage Everything",
