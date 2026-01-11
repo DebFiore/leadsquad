@@ -44,8 +44,7 @@ export default function Blog() {
                   </Link>
                 </h2>
                 <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>{new Date(post.published_at || '').toLocaleDateString()}</span>
+                <div className="text-sm text-gray-500">
                   <span>5 min read</span>
                 </div>
               </div>
