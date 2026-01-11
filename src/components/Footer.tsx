@@ -16,8 +16,10 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-primary font-semibold text-sm mb-2">Never Miss Another Lead</p>
-            <a href="https://mergemedia.ai" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Powered by MERGE AI</a>
-            <a href="tel:6025841952" className="text-sm text-muted-foreground hover:text-foreground transition-colors">(602) 584-1952</a>
+            <div className="flex flex-col gap-1">
+              <a href="https://mergemedia.ai" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Powered by MERGE AI</a>
+              <a href="tel:6025841952" className="text-sm text-muted-foreground hover:text-foreground transition-colors">(602) 584-1952</a>
+            </div>
           </div>
 
           {/* Quick Links */}
