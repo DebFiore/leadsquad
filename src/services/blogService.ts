@@ -12,6 +12,8 @@ export interface BlogPost {
   published_at: string | null
   created_at: string
   updated_at: string
+  category?: string
+  view_count?: number
 }
 
 export const blogService = {
