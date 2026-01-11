@@ -79,7 +79,7 @@ export default function Blog() {
           </h1>
           
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            <span className="text-[#FF6B35]">Lead</span> Generation Strategies & AI Automation Insights for Home Service Businesses
+            AI-Driven <span className="text-[#FF6B35]">Lead</span> Generation, Response, and Conversion Strategies for Modern Businesses
           </p>
           
           <div className="h-1 w-32 bg-gradient-to-r from-transparent via-orange to-transparent mx-auto rounded-full" />
