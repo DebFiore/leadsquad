@@ -41,9 +41,9 @@ export default function BlogPost() {
       <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
       
       <div className="flex items-center text-gray-600 mb-8">
-        <span>{new Date(post.published_at || '').toLocaleDateString()}</span>
-        <span className="mx-2">•</span>
         <span>5 min read</span>
+        <span className="mx-2">•</span>
+        <span>0 views</span>
       </div>
       
       <div className="prose prose-lg max-w-none">
