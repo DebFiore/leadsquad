@@ -74,12 +74,12 @@ export default function Blog() {
           </div>
           
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-            LeadSquad.ai{' '}
-            <span className="text-gradient">Insights</span>
+            Never Miss Another{' '}
+            <span className="text-[#FF6B35]">Lead</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            AI Automation Strategies for Home Service Businesses
+            <span className="text-[#FF6B35]">Lead</span> Generation Strategies & AI Automation Insights for Home Service Businesses
           </p>
           
           <div className="h-1 w-32 bg-gradient-to-r from-transparent via-orange to-transparent mx-auto rounded-full" />
