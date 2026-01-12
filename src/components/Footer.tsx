@@ -9,12 +9,12 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-1">
+            <a href="/" className="flex items-center gap-2 mb-1">
               <img src={logo} alt="LeadSquad" className="h-14 w-auto" />
               <span className="text-xl font-bold">
                 Lead<span className="text-gradient">Squad</span>
               </span>
-            </div>
+            </a>
             <p className="text-primary font-semibold text-sm mb-2">Never Miss Another Lead</p>
             <div className="flex flex-col gap-1">
               <a href="https://mergemedia.ai" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Powered by MERGE AI</a>
