@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/leadsquad-logo-transparent.png";
 
@@ -24,9 +25,9 @@ const Header = () => {
               <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
                 FAQ
               </a>
-              <a href="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
                 Client Dashboard
-              </a>
+              </Link>
             </nav>
 
             <Button variant="hero" size="sm">
