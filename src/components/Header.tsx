@@ -24,6 +24,9 @@ const Header = () => {
               <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
                 FAQ
               </a>
+              <a href="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
+                Client Dashboard
+              </a>
             </nav>
 
             <Button variant="hero" size="sm">
