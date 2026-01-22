@@ -24,9 +24,6 @@ const Header = () => {
               <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
                 FAQ
               </a>
-              <a href="https://app.leadsquad.ai/en/auth/login" className="text-muted-foreground hover:text-foreground transition-colors">
-                Log In
-              </a>
             </nav>
 
             <Button variant="hero" size="sm">
