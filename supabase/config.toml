@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.call-trigger]
 verify_jwt = false
+
+[functions.receive-provider-keys]
+verify_jwt = false
