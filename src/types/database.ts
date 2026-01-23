@@ -13,6 +13,8 @@ export interface Organization {
   industry: string | null;
   owner_id: string;
   onboarding_completed: boolean;
+  status: 'pending' | 'active' | 'flagged' | 'needs_clarification';
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +24,13 @@ export interface OrganizationMember {
   organization_id: string;
   user_id: string;
   role: 'owner' | 'admin' | 'member';
+  created_at: string;
+}
+
+export interface SuperAdmin {
+  id: string;
+  user_id: string;
+  email: string;
   created_at: string;
 }
 
@@ -63,6 +72,35 @@ export interface ClientIntakeResponse {
   calendar_systems: string[] | null;
   crm_system: string | null;
   crm_integration_notes: string | null;
+  
+  // Extended Intake Fields (Sections 5-13)
+  // Section 5: Ideal Customer Profile
+  ideal_customer_description: string | null;
+  customer_pain_points: string[] | null;
+  
+  // Section 6: Competitor Information
+  main_competitors: string[] | null;
+  competitive_advantages: string[] | null;
+  
+  // Section 8: Lead Qualification
+  qualification_criteria: string[] | null;
+  disqualification_criteria: string[] | null;
+  lead_scoring_notes: string | null;
+  
+  // Section 10: Appointment Setting
+  appointment_types: string[] | null;
+  appointment_duration: string | null;
+  appointment_buffer: string | null;
+  
+  // Section 12: Follow-up Protocols
+  followup_timing: string | null;
+  followup_channels: string[] | null;
+  followup_sequence: string | null;
+  
+  // Section 13: Reporting & KPIs
+  key_metrics: string[] | null;
+  reporting_frequency: string | null;
+  success_criteria: string | null;
   
   // Metadata
   current_step: number;
