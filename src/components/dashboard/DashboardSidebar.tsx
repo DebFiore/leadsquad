@@ -6,7 +6,8 @@ import {
   Puzzle, 
   Settings,
   LogOut,
-  Building2
+  Building2,
+  Radio
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +31,7 @@ import logoImage from '@/assets/leadsquad-logo-transparent.png';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+  { title: 'Live', url: '/dashboard/live', icon: Radio },
   { title: 'Agents', url: '/dashboard/agents', icon: Bot },
   { title: 'Campaigns', url: '/dashboard/campaigns', icon: Megaphone },
   { title: 'Leads', url: '/dashboard/leads', icon: Users },

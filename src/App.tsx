@@ -23,6 +23,7 @@ import Agents from "./pages/dashboard/Agents";
 import Campaigns from "./pages/dashboard/Campaigns";
 import Leads from "./pages/dashboard/Leads";
 import DashboardIntegrations from "./pages/dashboard/DashboardIntegrations";
+import LiveDashboard from "./pages/dashboard/LiveDashboard";
 import Settings from "./pages/dashboard/Settings";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,11 @@ const App = () => (
               <Route path="/dashboard/integrations" element={
                 <ProtectedRoute>
                   <DashboardIntegrations />
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard/live" element={
+                <ProtectedRoute>
+                  <LiveDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/dashboard/settings" element={

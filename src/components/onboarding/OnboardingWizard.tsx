@@ -8,7 +8,8 @@ import { OnboardingStep1 } from './OnboardingStep1';
 import { OnboardingStep2 } from './OnboardingStep2';
 import { OnboardingStep3 } from './OnboardingStep3';
 import { OnboardingStep4 } from './OnboardingStep4';
-import { Loader2, Rocket } from 'lucide-react';
+import { DeploymentScreen } from './DeploymentScreen';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/leadsquad-logo-transparent.png';
 
@@ -83,15 +84,19 @@ export function OnboardingWizard() {
       // Refresh organization data
       await refreshOrganization();
       
-      toast.success('Setup complete! Welcome to LeadSquad!');
+      toast.success('Configuration saved! Starting deployment...');
       
-      // Navigate to dashboard
-      navigate('/dashboard', { replace: true });
+      // Show deployment screen (don't navigate away yet)
     } catch (error) {
       console.error('Failed to complete setup:', error);
       toast.error('Failed to complete setup');
       setIsCompleting(false);
     }
+  };
+
+  const handleDeploymentComplete = () => {
+    // This is called when deployment finishes
+    console.log('Deployment complete!');
   };
 
   const handleBack = () => {
@@ -109,24 +114,12 @@ export function OnboardingWizard() {
     );
   }
 
-  if (isCompleting) {
+  if (isCompleting && organization?.id) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center max-w-md">
-          <div className="relative mb-6">
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto animate-pulse">
-              <Rocket className="h-12 w-12 text-primary" />
-            </div>
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Building Your Voice Pod...</h2>
-          <p className="text-muted-foreground">
-            We're configuring your AI agent with all your preferences. This will only take a moment.
-          </p>
-          <div className="mt-6">
-            <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
-          </div>
-        </div>
-      </div>
+      <DeploymentScreen 
+        organizationId={organization.id} 
+        onComplete={handleDeploymentComplete}
+      />
     );
   }
 
