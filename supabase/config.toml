@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.deployment-callback]
 verify_jwt = false
+
+[functions.provider-proxy]
+verify_jwt = false

@@ -6,16 +6,18 @@ import { adminService } from '@/services/adminService';
 import { Organization } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Building2, CheckCircle, Clock, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Building2, CheckCircle, Clock, AlertCircle, Loader2, RefreshCw, DollarSign, Palette, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/leadsquad-logo-transparent.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function AdminDashboardContent() {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
 
   const loadOrganizations = async () => {
     setIsLoading(true);
@@ -60,10 +62,24 @@ function AdminDashboardContent() {
               Super Admin
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={loadOrganizations} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/provisioning')}>
+              <Zap className="h-4 w-4 mr-2" />
+              Provisioning
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/branding')}>
+              <Palette className="h-4 w-4 mr-2" />
+              Branding
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/billing')}>
+              <DollarSign className="h-4 w-4 mr-2" />
+              Billing
+            </Button>
+            <Button variant="outline" size="sm" onClick={loadOrganizations} disabled={isLoading}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </header>
 
