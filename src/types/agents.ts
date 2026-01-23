@@ -17,6 +17,10 @@ export interface AgentSettings {
   lead_reworking_enabled: boolean;
   retry_attempts: number;
   retry_hours: number;
+  provider?: 'vapi' | 'retell';
+  retell_agent_id?: string | null;
+  vapi_assistant_id?: string | null;
+  phone_number?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,9 +29,9 @@ export interface LeadEvent {
   id: string;
   organization_id: string;
   lead_id: string | null;
-  event_type: 'web_form_inbound' | 'sms_sent' | 'call_attempted' | 'call_completed' | 'appointment_set' | 'appointment_confirmed' | 'rework_scheduled';
+  event_type: 'web_form_inbound' | 'sms_sent' | 'call_attempted' | 'call_completed' | 'call_failed' | 'call_scheduled' | 'appointment_set' | 'appointment_confirmed' | 'rework_scheduled' | 'agents_deployed';
   event_data: Record<string, unknown>;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'partial' | 'in_progress';
   processed_at: string | null;
   created_at: string;
 }
