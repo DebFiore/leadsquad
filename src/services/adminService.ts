@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { Organization, ClientIntakeResponse } from '@/types/database';
+import { LeadEvent } from '@/types/agents';
 
 export const adminService = {
   // Check if user is a superadmin
@@ -95,5 +96,51 @@ export const adminService = {
     }
     
     return data;
+  },
+
+  // Get lead events for an organization
+  async getLeadEventsByOrganization(organizationId: string, limit = 20): Promise<LeadEvent[]> {
+    const { data, error } = await supabase
+      .from('lead_events')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Error fetching lead events:', error);
+      throw error;
+    }
+    
+    return data || [];
+  },
+
+  // Get event statistics for an organization
+  async getEventStats(organizationId: string): Promise<Record<string, number>> {
+    const { data, error } = await supabase
+      .from('lead_events')
+      .select('event_type, status')
+      .eq('organization_id', organizationId);
+    
+    if (error) {
+      console.error('Error fetching event stats:', error);
+      return { total: 0, sms_sent: 0, call_attempted: 0, appointment_set: 0 };
+    }
+    
+    const stats: Record<string, number> = {
+      total: data?.length || 0,
+      sms_sent: 0,
+      call_attempted: 0,
+      call_completed: 0,
+      appointment_set: 0,
+    };
+
+    data?.forEach(event => {
+      if (stats[event.event_type] !== undefined) {
+        stats[event.event_type]++;
+      }
+    });
+
+    return stats;
   },
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Organization, ClientIntakeResponse } from '@/types/database';
+import { LeadEvent } from '@/types/agents';
 import { adminService } from '@/services/adminService';
 import { useAdmin } from '@/contexts/AdminContext';
 import { 
@@ -16,6 +17,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LeadEventsTimeline } from './LeadEventsTimeline';
 import {
   Select,
   SelectContent,
@@ -39,6 +42,7 @@ import {
   UserCheck,
   Loader2,
   Eye,
+  Activity,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -103,6 +107,8 @@ export function IntakeDetailDrawer({
   const navigate = useNavigate();
   const { setImpersonatedOrg } = useAdmin();
   const [intake, setIntake] = useState<ClientIntakeResponse | null>(null);
+  const [events, setEvents] = useState<LeadEvent[]>([]);
+  const [eventStats, setEventStats] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<Organization['status']>('pending');
@@ -112,18 +118,23 @@ export function IntakeDetailDrawer({
     if (organization && open) {
       setStatus(organization.status || 'pending');
       setIsActive(organization.is_active ?? true);
-      loadIntake(organization.id);
+      loadData(organization.id);
     }
   }, [organization, open]);
 
-  const loadIntake = async (orgId: string) => {
+  const loadData = async (orgId: string) => {
     setIsLoading(true);
     try {
-      const data = await adminService.getIntakeByOrganization(orgId);
-      setIntake(data);
+      const [intakeData, eventsData, statsData] = await Promise.all([
+        adminService.getIntakeByOrganization(orgId),
+        adminService.getLeadEventsByOrganization(orgId),
+        adminService.getEventStats(orgId),
+      ]);
+      setIntake(intakeData);
+      setEvents(eventsData);
+      setEventStats(statsData);
     } catch (error) {
-      console.error('Failed to load intake:', error);
-      toast.error('Failed to load intake data');
+      console.error('Failed to load data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -227,20 +238,55 @@ export function IntakeDetailDrawer({
           </Button>
         </div>
 
-        {/* Intake Data */}
-        <ScrollArea className="flex-1 -mx-6 px-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        {/* Tabs for Intake and Events */}
+        <Tabs defaultValue="events" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="events" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Events ({eventStats.total || 0})
+            </TabsTrigger>
+            <TabsTrigger value="intake">
+              <FileText className="h-4 w-4 mr-2" />
+              Intake Data
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="events" className="flex-1 mt-4">
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              <div className="text-center p-2 rounded bg-muted/50">
+                <div className="text-lg font-bold text-sky-400">{eventStats.sms_sent || 0}</div>
+                <div className="text-xs text-muted-foreground">SMS Sent</div>
+              </div>
+              <div className="text-center p-2 rounded bg-muted/50">
+                <div className="text-lg font-bold text-amber-400">{eventStats.call_attempted || 0}</div>
+                <div className="text-xs text-muted-foreground">Calls</div>
+              </div>
+              <div className="text-center p-2 rounded bg-muted/50">
+                <div className="text-lg font-bold text-green-400">{eventStats.call_completed || 0}</div>
+                <div className="text-xs text-muted-foreground">Completed</div>
+              </div>
+              <div className="text-center p-2 rounded bg-muted/50">
+                <div className="text-lg font-bold text-primary">{eventStats.appointment_set || 0}</div>
+                <div className="text-xs text-muted-foreground">Appts</div>
+              </div>
             </div>
-          ) : !intake ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No intake data available yet</p>
-              <p className="text-sm">The client hasn't completed onboarding</p>
-            </div>
-          ) : (
-            <div className="space-y-6 py-4">
+            <LeadEventsTimeline events={events} isLoading={isLoading} />
+          </TabsContent>
+
+          <TabsContent value="intake" className="flex-1 overflow-hidden">
+            <ScrollArea className="h-[400px] -mx-6 px-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : !intake ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No intake data available yet</p>
+            <p className="text-sm">The client hasn't completed onboarding</p>
+          </div>
+        ) : (
+          <div className="space-y-6 py-4">
               {/* Section 1: Business Basics */}
               <IntakeSection title="Business Basics" icon={<Building2 className="h-4 w-4" />}>
                 <DataField label="Business Name" value={intake.business_name} />
@@ -358,9 +404,11 @@ export function IntakeDetailDrawer({
                 <DataField label="Reporting Frequency" value={intake.reporting_frequency} />
                 <DataField label="Success Criteria" value={intake.success_criteria} />
               </IntakeSection>
-            </div>
-          )}
-        </ScrollArea>
+          </div>
+        )}
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
       </SheetContent>
     </Sheet>
   );
