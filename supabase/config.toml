@@ -20,3 +20,6 @@ api_url = "http://localhost"
 [functions]
 [functions.automation-engine]
 verify_jwt = false
+
+[functions.call-trigger]
+verify_jwt = false
