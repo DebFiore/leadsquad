@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AdminProvider } from "@/contexts/AdminContext";
+import { BrandingProvider } from "@/contexts/BrandingContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 import Index from "./pages/Index";
@@ -19,6 +20,9 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import AdminBilling from "./pages/admin/AdminBilling";
+import AdminProvisioning from "./pages/admin/AdminProvisioning";
+import AdminBranding from "./pages/admin/AdminBranding";
 import Agents from "./pages/dashboard/Agents";
 import Campaigns from "./pages/dashboard/Campaigns";
 import Leads from "./pages/dashboard/Leads";
@@ -33,68 +37,73 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <AdminProvider>
-          <TooltipProvider>
-            <ImpersonationBanner />
-            <Toaster />
-            <Sonner />
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/integrations" element={<Integrations />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/auth" element={<Auth />} />
-              
-              {/* Onboarding route */}
-              <Route path="/onboarding" element={<Onboarding />} />
-              
-              {/* SuperAdmin route */}
-              <Route path="/admin" element={<Admin />} />
-              
-              {/* Protected dashboard routes */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/agents" element={
-                <ProtectedRoute>
-                  <Agents />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/campaigns" element={
-                <ProtectedRoute>
-                  <Campaigns />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/leads" element={
-                <ProtectedRoute>
-                  <Leads />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/integrations" element={
-                <ProtectedRoute>
-                  <DashboardIntegrations />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/live" element={
-                <ProtectedRoute>
-                  <LiveDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/settings" element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } />
-              
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
+          <BrandingProvider>
+            <TooltipProvider>
+              <ImpersonationBanner />
+              <Toaster />
+              <Sonner />
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/integrations" element={<Integrations />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/auth" element={<Auth />} />
+                
+                {/* Onboarding route */}
+                <Route path="/onboarding" element={<Onboarding />} />
+                
+                {/* SuperAdmin routes */}
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/billing" element={<AdminBilling />} />
+                <Route path="/admin/provisioning" element={<AdminProvisioning />} />
+                <Route path="/admin/branding" element={<AdminBranding />} />
+                
+                {/* Protected dashboard routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/agents" element={
+                  <ProtectedRoute>
+                    <Agents />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/campaigns" element={
+                  <ProtectedRoute>
+                    <Campaigns />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/leads" element={
+                  <ProtectedRoute>
+                    <Leads />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/integrations" element={
+                  <ProtectedRoute>
+                    <DashboardIntegrations />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/live" element={
+                  <ProtectedRoute>
+                    <LiveDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+                
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </BrandingProvider>
         </AdminProvider>
       </AuthProvider>
     </BrowserRouter>
