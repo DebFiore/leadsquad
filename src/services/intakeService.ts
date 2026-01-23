@@ -65,7 +65,19 @@ export const intakeService = {
   async completeIntake(id: string): Promise<ClientIntakeResponse> {
     return this.updateIntake(id, {
       is_complete: true,
-      current_step: 5,
+      current_step: 4,
     });
+  },
+
+  async markOnboardingComplete(organizationId: string): Promise<void> {
+    const { error } = await supabase
+      .from('organizations')
+      .update({ onboarding_completed: true })
+      .eq('id', organizationId);
+
+    if (error) {
+      console.error('Error marking onboarding complete:', error);
+      throw error;
+    }
   },
 };
