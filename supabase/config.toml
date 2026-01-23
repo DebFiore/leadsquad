@@ -35,3 +35,15 @@ verify_jwt = false
 
 [functions.provider-proxy]
 verify_jwt = false
+
+[functions.deploy-retell-agents]
+verify_jwt = false
+
+[functions.get-retell-usage]
+verify_jwt = false
+
+[functions.sync-retell-resources]
+verify_jwt = false
+
+[functions.test-retell-connection]
+verify_jwt = false

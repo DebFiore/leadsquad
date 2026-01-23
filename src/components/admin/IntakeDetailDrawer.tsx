@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Organization, ClientIntakeResponse } from '@/types/database';
 import { LeadEvent } from '@/types/agents';
 import { adminService } from '@/services/adminService';
+import { retellWorkspaceService } from '@/services/retellWorkspaceService';
 import { useAdmin } from '@/contexts/AdminContext';
+import { RetellWorkspace } from '@/types/retell';
 import { 
   Sheet, 
   SheetContent, 
@@ -19,6 +21,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LeadEventsTimeline } from './LeadEventsTimeline';
+import { RetellWorkspaceLink } from './RetellWorkspaceLink';
 import {
   Select,
   SelectContent,
@@ -43,6 +46,7 @@ import {
   Loader2,
   Eye,
   Activity,
+  Settings2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -109,6 +113,7 @@ export function IntakeDetailDrawer({
   const [intake, setIntake] = useState<ClientIntakeResponse | null>(null);
   const [events, setEvents] = useState<LeadEvent[]>([]);
   const [eventStats, setEventStats] = useState<Record<string, number>>({});
+  const [workspace, setWorkspace] = useState<RetellWorkspace | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<Organization['status']>('pending');
@@ -125,18 +130,26 @@ export function IntakeDetailDrawer({
   const loadData = async (orgId: string) => {
     setIsLoading(true);
     try {
-      const [intakeData, eventsData, statsData] = await Promise.all([
+      const [intakeData, eventsData, statsData, workspaceData] = await Promise.all([
         adminService.getIntakeByOrganization(orgId),
         adminService.getLeadEventsByOrganization(orgId),
         adminService.getEventStats(orgId),
+        retellWorkspaceService.getWorkspace(orgId).catch(() => null),
       ]);
       setIntake(intakeData);
       setEvents(eventsData);
       setEventStats(statsData);
+      setWorkspace(workspaceData);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleWorkspaceLinked = () => {
+    if (organization) {
+      loadData(organization.id);
     }
   };
 
@@ -239,17 +252,41 @@ export function IntakeDetailDrawer({
         </div>
 
         {/* Tabs for Intake and Events */}
-        <Tabs defaultValue="events" className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="workspace" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="workspace" className="flex items-center gap-2">
+              <Settings2 className="h-4 w-4" />
+              Workspace
+            </TabsTrigger>
             <TabsTrigger value="events" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
               Events ({eventStats.total || 0})
             </TabsTrigger>
             <TabsTrigger value="intake">
               <FileText className="h-4 w-4 mr-2" />
-              Intake Data
+              Intake
             </TabsTrigger>
           </TabsList>
+
+          {/* Workspace Tab */}
+          <TabsContent value="workspace" className="flex-1 mt-4 overflow-auto">
+            <div className="space-y-4">
+              <RetellWorkspaceLink
+                organizationId={organization.id}
+                organizationName={organization.name}
+                existingWorkspaceId={workspace?.workspace_id}
+                existingApiKey={workspace?.api_key}
+                isConnected={workspace?.is_connected || false}
+                onLinked={handleWorkspaceLinked}
+              />
+              
+              {workspace?.last_synced_at && (
+                <div className="text-xs text-muted-foreground text-center">
+                  Last synced: {new Date(workspace.last_synced_at).toLocaleString()}
+                </div>
+              )}
+            </div>
+          </TabsContent>
 
           <TabsContent value="events" className="flex-1 mt-4">
             <div className="grid grid-cols-4 gap-2 mb-4">

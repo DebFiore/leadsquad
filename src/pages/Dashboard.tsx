@@ -1,6 +1,8 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PhoneNumbersSection } from '@/components/dashboard/PhoneNumbersSection';
+import { UsageMonitor } from '@/components/dashboard/UsageMonitor';
 import { 
   Users, 
   Bot, 
@@ -20,8 +22,8 @@ const stats = [
   },
   {
     title: 'Active Agents',
-    value: '8',
-    change: '+2',
+    value: '3',
+    change: 'Deployed',
     trend: 'up',
     icon: Bot,
   },
@@ -84,7 +86,17 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Placeholder content */}
+        {/* Phone Numbers and Usage */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {organization?.id && (
+            <>
+              <PhoneNumbersSection organizationId={organization.id} />
+              <UsageMonitor organizationId={organization.id} />
+            </>
+          )}
+        </div>
+
+        {/* Activity and Performance */}
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="bg-card border-border">
             <CardHeader>
