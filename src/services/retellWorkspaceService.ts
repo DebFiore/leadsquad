@@ -90,12 +90,34 @@ export const retellWorkspaceService = {
     return data?.phone_numbers || [];
   },
 
-  // Get usage data for an organization
+  // Get usage data from cache or API
   async getUsageData(
     organizationId: string,
     periodStart?: string,
     periodEnd?: string
   ): Promise<RetellUsageData | null> {
+    // Try to get from cache first
+    const now = new Date();
+    const monthStart = periodStart || new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    
+    const { data: cached } = await supabase
+      .from('usage_cache')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .gte('period_start', monthStart)
+      .maybeSingle();
+
+    // If cache is fresh (less than 1 hour old), use it
+    if (cached && cached.data) {
+      const cacheAge = Date.now() - new Date(cached.cached_at).getTime();
+      const oneHour = 60 * 60 * 1000;
+      
+      if (cacheAge < oneHour) {
+        return cached.data as RetellUsageData;
+      }
+    }
+
+    // Otherwise fetch from API and cache
     const { data, error } = await supabase.functions.invoke('get-retell-usage', {
       body: {
         organization_id: organizationId,
@@ -118,7 +140,7 @@ export const retellWorkspaceService = {
       .eq('is_active', true)
       .maybeSingle();
 
-    const includedMinutes = plan?.included_minutes || 500; // Default 500 mins
+    const includedMinutes = plan?.included_minutes || 500;
     const overageRate = plan?.overage_per_minute || 0.25;
 
     // Get current month's usage
