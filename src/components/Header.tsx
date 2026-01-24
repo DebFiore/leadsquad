@@ -26,7 +26,7 @@ const Header = () => {
                 FAQ
               </a>
               <a 
-                href="https://app.leadsquad.ai/auth" 
+                href="https://app.leadsquad.ai" 
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Log In
