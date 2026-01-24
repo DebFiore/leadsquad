@@ -25,7 +25,7 @@ const Header = () => {
               <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
                 FAQ
               </a>
-              <a href="https://app.leadsquad.ai/auth" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://app.leadsquad.ai" className="text-muted-foreground hover:text-foreground transition-colors">
                 Client Dashboard
               </a>
             </nav>
