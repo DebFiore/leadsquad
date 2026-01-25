@@ -32,6 +32,7 @@ import DashboardIntegrations from "./pages/dashboard/DashboardIntegrations";
 import LiveDashboard from "./pages/dashboard/LiveDashboard";
 import Settings from "./pages/dashboard/Settings";
 import CallLogs from "./pages/dashboard/CallLogs";
+import Billing from "./pages/dashboard/Billing";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +126,11 @@ const App = () => (
                   <Route path="/dashboard/settings" element={
                     <ProtectedRoute>
                       <Settings />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/billing" element={
+                    <ProtectedRoute>
+                      <Billing />
                     </ProtectedRoute>
                   } />
                   
