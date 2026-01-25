@@ -38,6 +38,7 @@ import {
   Save,
   Clock,
   PhoneCall,
+  Loader2,
 } from 'lucide-react';
 import { Lead, LeadStatus } from '@/types/leads';
 import { Campaign } from '@/types/campaigns';
@@ -45,6 +46,9 @@ import { useUpdateLead, useUpdateLeadStatus } from '@/hooks/useLeads';
 import { formatPhoneNumber } from '@/lib/phoneUtils';
 import { formatDistanceToNow, format } from 'date-fns';
 import { validatePhoneNumber } from '@/lib/phoneUtils';
+import { callService } from '@/services/callService';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const leadSchema = z.object({
   first_name: z.string().optional().nullable(),
@@ -80,6 +84,8 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, campaigns }: LeadDe
   const updateLead = useUpdateLead();
   const updateStatus = useUpdateLeadStatus();
   const [activeTab, setActiveTab] = useState('details');
+  const [isInitiatingCall, setIsInitiatingCall] = useState(false);
+  const { organization } = useAuth();
 
   const form = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
@@ -132,6 +138,26 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, campaigns }: LeadDe
     updateStatus.mutate({ id: lead.id, status });
   };
 
+  const handleInitiateCall = async () => {
+    if (!lead || !organization?.id) return;
+    
+    setIsInitiatingCall(true);
+    try {
+      const result = await callService.initiateCall({
+        organizationId: organization.id,
+        leadId: lead.id,
+        campaignId: lead.campaign_id || undefined,
+        phoneNumber: lead.phone_number,
+      });
+      
+      toast.success(`Call initiated via ${result.provider}`);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to initiate call');
+    } finally {
+      setIsInitiatingCall(false);
+    }
+  };
+
   if (!lead) return null;
 
   const fullName = [lead.first_name, lead.last_name].filter(Boolean).join(' ') || 'Unknown';
@@ -152,6 +178,20 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, campaigns }: LeadDe
               {statusConfig[lead.lead_status].label}
             </Badge>
           </div>
+          
+          {/* Call Now Button */}
+          <Button 
+            onClick={handleInitiateCall}
+            disabled={isInitiatingCall || lead.lead_status === 'do_not_call'}
+            className="w-full"
+          >
+            {isInitiatingCall ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <PhoneCall className="h-4 w-4 mr-2" />
+            )}
+            {isInitiatingCall ? 'Initiating Call...' : 'Call Now'}
+          </Button>
         </SheetHeader>
 
         <div className="mt-6">
