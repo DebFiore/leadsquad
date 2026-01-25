@@ -9,6 +9,7 @@ import {
   Building2,
   Radio,
   Phone,
+  CreditCard,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,6 +39,7 @@ const navigationItems = [
   { title: 'Leads', url: '/dashboard/leads', icon: Users },
   { title: 'Call Logs', url: '/dashboard/calls', icon: Phone },
   { title: 'Integrations', url: '/dashboard/integrations', icon: Puzzle },
+  { title: 'Billing', url: '/dashboard/billing', icon: CreditCard },
   { title: 'Settings', url: '/dashboard/settings', icon: Settings },
 ];
 
