@@ -132,6 +132,16 @@ export const leadService = {
     return this.updateLead(leadId, { campaign_id: campaignId });
   },
 
+  // Bulk assign leads to campaign
+  async assignLeadsToCampaign(leadIds: string[], campaignId: string | null): Promise<void> {
+    const { error } = await supabase
+      .from('leads')
+      .update({ campaign_id: campaignId, updated_at: new Date().toISOString() })
+      .in('id', leadIds);
+
+    if (error) throw error;
+  },
+
   // Get lead statistics
   async getLeadStats(organizationId: string) {
     const { data, error } = await supabase
