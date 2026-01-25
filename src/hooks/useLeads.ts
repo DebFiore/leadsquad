@@ -245,6 +245,26 @@ export function useAssignLeadToCampaign() {
   });
 }
 
+// Bulk assign leads to campaign
+export function useAssignLeadsToCampaign() {
+  const queryClient = useQueryClient();
+  const { organization } = useAuth();
+  
+  return useMutation({
+    mutationFn: async ({ leadIds, campaignId }: { leadIds: string[]; campaignId: string | null }) => {
+      return leadService.assignLeadsToCampaign(leadIds, campaignId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leadKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: leadKeys.stats(organization?.id ?? '') });
+      toast.success('Leads assigned successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to assign leads: ${error.message}`);
+    },
+  });
+}
+
 // Get import history
 export function useLeadImports() {
   const { organization } = useAuth();
