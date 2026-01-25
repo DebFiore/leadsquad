@@ -37,6 +37,7 @@ const navItems = [
   { name: 'Billing', href: '/admin/billing', icon: CreditCard },
   { name: 'Provisioning', href: '/admin/provisioning', icon: Zap },
   { name: 'Branding', href: '/admin/branding', icon: Palette },
+  { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

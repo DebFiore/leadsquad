@@ -26,6 +26,7 @@ import AdminProvisioning from "./pages/admin/AdminProvisioning";
 import AdminBranding from "./pages/admin/AdminBranding";
 import AdminOrganizations from "./pages/admin/Organizations";
 import AdminVoiceLibrary from "./pages/admin/VoiceLibrary";
+import AdminSettings from "./pages/admin/AdminSettings";
 import Agents from "./pages/dashboard/Agents";
 import Campaigns from "./pages/dashboard/Campaigns";
 import CampaignDetail from "./pages/dashboard/CampaignDetail";
@@ -85,6 +86,7 @@ const App = () => (
                   <Route path="/admin/billing" element={<AdminBilling />} />
                   <Route path="/admin/provisioning" element={<AdminProvisioning />} />
                   <Route path="/admin/branding" element={<AdminBranding />} />
+                  <Route path="/admin/settings" element={<AdminSettings />} />
                   
                   {/* Protected dashboard routes */}
                   <Route path="/dashboard" element={
