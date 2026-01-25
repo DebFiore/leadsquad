@@ -169,4 +169,16 @@ export const callLogService = {
     if (error) throw error;
     return data || [];
   },
+
+  // Get calls for a specific campaign
+  async getCampaignCalls(campaignId: string): Promise<CallLog[]> {
+    const { data, error } = await supabase
+      .from('call_logs')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
 };

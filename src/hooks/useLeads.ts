@@ -56,6 +56,18 @@ export function useLead(leadId: string | undefined) {
   });
 }
 
+// Fetch leads by campaign
+export function useLeadsByCampaign(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: leadKeys.byCampaign(campaignId ?? ''),
+    queryFn: async () => {
+      if (!campaignId) throw new Error('No campaign ID');
+      return leadService.getLeadsByCampaign(campaignId);
+    },
+    enabled: !!campaignId,
+  });
+}
+
 // Fetch lead statistics
 export function useLeadStats() {
   const { organization } = useAuth();

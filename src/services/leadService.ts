@@ -42,6 +42,18 @@ export const leadService = {
     return { leads: data || [], count: count || 0 };
   },
 
+  // Get leads by campaign
+  async getLeadsByCampaign(campaignId: string): Promise<Lead[]> {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
   // Get a single lead by ID
   async getLead(id: string): Promise<Lead | null> {
     const { data, error } = await supabase
