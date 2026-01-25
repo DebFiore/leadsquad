@@ -1,3 +1,4 @@
+// Call log hooks for React Query
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { callLogService } from '@/services/callLogService';
