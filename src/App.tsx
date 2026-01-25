@@ -20,10 +20,12 @@ import BlogPost from "./pages/BlogPost";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
-import Admin from "./pages/Admin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminBilling from "./pages/admin/AdminBilling";
 import AdminProvisioning from "./pages/admin/AdminProvisioning";
 import AdminBranding from "./pages/admin/AdminBranding";
+import AdminOrganizations from "./pages/admin/Organizations";
+import AdminVoiceLibrary from "./pages/admin/VoiceLibrary";
 import Agents from "./pages/dashboard/Agents";
 import Campaigns from "./pages/dashboard/Campaigns";
 import CampaignDetail from "./pages/dashboard/CampaignDetail";
@@ -77,7 +79,9 @@ const App = () => (
                   <Route path="/onboarding" element={<Onboarding />} />
                   
                   {/* SuperAdmin routes */}
-                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/organizations" element={<AdminOrganizations />} />
+                  <Route path="/admin/voices" element={<AdminVoiceLibrary />} />
                   <Route path="/admin/billing" element={<AdminBilling />} />
                   <Route path="/admin/provisioning" element={<AdminProvisioning />} />
                   <Route path="/admin/branding" element={<AdminBranding />} />
