@@ -7,7 +7,8 @@ import {
   Settings,
   LogOut,
   Building2,
-  Radio
+  Radio,
+  Phone,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,6 +36,7 @@ const navigationItems = [
   { title: 'Agents', url: '/dashboard/agents', icon: Bot },
   { title: 'Campaigns', url: '/dashboard/campaigns', icon: Megaphone },
   { title: 'Leads', url: '/dashboard/leads', icon: Users },
+  { title: 'Call Logs', url: '/dashboard/calls', icon: Phone },
   { title: 'Integrations', url: '/dashboard/integrations', icon: Puzzle },
   { title: 'Settings', url: '/dashboard/settings', icon: Settings },
 ];

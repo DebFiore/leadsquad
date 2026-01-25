@@ -31,6 +31,7 @@ import Leads from "./pages/dashboard/Leads";
 import DashboardIntegrations from "./pages/dashboard/DashboardIntegrations";
 import LiveDashboard from "./pages/dashboard/LiveDashboard";
 import Settings from "./pages/dashboard/Settings";
+import CallLogs from "./pages/dashboard/CallLogs";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -114,6 +115,11 @@ const App = () => (
                   <Route path="/dashboard/live" element={
                     <ProtectedRoute>
                       <LiveDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/calls" element={
+                    <ProtectedRoute>
+                      <CallLogs />
                     </ProtectedRoute>
                   } />
                   <Route path="/dashboard/settings" element={
