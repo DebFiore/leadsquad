@@ -181,53 +181,8 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
 
-        {/* Vapi.ai Webhook */}
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Webhook className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Vapi.ai Webhook Secret</CardTitle>
-                <CardDescription>
-                  Used to verify webhook signatures from Vapi.ai call events
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <SecretField
-              label="Webhook Secret"
-              description="Find this in your Vapi.ai dashboard under Settings → Webhooks"
-              value={vapiWebhookSecret}
-              onChange={setVapiWebhookSecret}
-              placeholder="Enter your Vapi webhook secret..."
-              isConfigured={!!vapiWebhookSecret}
-            />
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleGenerateToken(setVapiWebhookSecret)}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Generate New Secret
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Then configure this same secret in Vapi.ai
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-muted/50 border border-border">
-              <p className="text-xs text-muted-foreground">
-                <strong>Webhook URL:</strong>{' '}
-                <code className="bg-background px-1 py-0.5 rounded">
-                  https://app.leadsquad.ai/api/webhooks/vapi
-                </code>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Vapi.ai Webhook - Coming Soon */}
+        {/* TODO: Re-enable when Vapi multi-tenant API structure is finalized */}
 
         {/* N8N Webhook */}
         <Card className="bg-card border-border">
