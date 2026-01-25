@@ -239,18 +239,18 @@ export default function AdminSettings() {
               <div>
                 <CardTitle className="text-lg">N8N Webhook Token</CardTitle>
                 <CardDescription>
-                  Shared token for authenticating automation requests from N8N
+                  Header-based authentication for webhooks FROM N8N to LeadSquad
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <SecretField
-              label="Webhook Token"
-              description="Generate a secure token and configure it in your N8N workflows"
+              label="Shared Secret Token"
+              description="Generate a token here, then configure your N8N Webhook node to send it in the x-n8n-token header"
               value={n8nWebhookSecret}
               onChange={setN8nWebhookSecret}
-              placeholder="Enter or generate a secure token..."
+              placeholder="Generate or enter a secure token..."
               isConfigured={!!n8nWebhookSecret}
             />
             <div className="flex items-center gap-2">
@@ -263,15 +263,28 @@ export default function AdminSettings() {
                 Generate Token
               </Button>
             </div>
-            <div className="p-3 rounded-lg bg-muted/50 border border-border space-y-1">
+            
+            {/* N8N Setup Instructions */}
+            <div className="p-4 rounded-lg bg-orange-500/5 border border-orange-500/20 space-y-3">
+              <p className="text-sm font-medium text-orange-600">N8N Workflow Setup</p>
+              <ol className="list-decimal list-inside space-y-2 text-xs text-muted-foreground">
+                <li>In your N8N Webhook node, set <strong>Authentication</strong> to "Header Auth"</li>
+                <li>Set Header Name to: <code className="bg-background px-1 py-0.5 rounded">x-n8n-token</code></li>
+                <li>Set Header Value to the token generated above</li>
+                <li>Point the webhook to the URL below</li>
+              </ol>
+            </div>
+
+            <div className="p-3 rounded-lg bg-muted/50 border border-border space-y-2">
               <p className="text-xs text-muted-foreground">
-                <strong>Webhook URL:</strong>{' '}
+                <strong>LeadSquad Webhook URL:</strong>{' '}
                 <code className="bg-background px-1 py-0.5 rounded">
                   https://app.leadsquad.ai/api/webhooks/n8n
                 </code>
               </p>
               <p className="text-xs text-muted-foreground">
-                Include token as header: <code className="bg-background px-1 py-0.5 rounded">x-n8n-token: YOUR_TOKEN</code>
+                <strong>Required Header:</strong>{' '}
+                <code className="bg-background px-1 py-0.5 rounded">x-n8n-token: [your_token]</code>
               </p>
             </div>
           </CardContent>
