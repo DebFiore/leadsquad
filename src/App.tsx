@@ -31,7 +31,16 @@ import DashboardIntegrations from "./pages/dashboard/DashboardIntegrations";
 import LiveDashboard from "./pages/dashboard/LiveDashboard";
 import Settings from "./pages/dashboard/Settings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Component to handle subdomain-based routing
 const SubdomainRouter = ({ children }: { children: React.ReactNode }) => {
