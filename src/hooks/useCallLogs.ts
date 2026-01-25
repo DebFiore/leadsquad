@@ -53,6 +53,18 @@ export function useCallLog(callId: string | undefined) {
   });
 }
 
+// Fetch call logs for a specific campaign
+export function useCallLogsByCampaign(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: callLogKeys.byCampaign(campaignId ?? ''),
+    queryFn: async () => {
+      if (!campaignId) throw new Error('No campaign ID');
+      return callLogService.getCampaignCalls(campaignId);
+    },
+    enabled: !!campaignId,
+  });
+}
+
 // Fetch call logs for a specific lead
 export function useCallLogsByLead(leadId: string | undefined) {
   return useQuery({

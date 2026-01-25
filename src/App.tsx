@@ -26,6 +26,7 @@ import AdminProvisioning from "./pages/admin/AdminProvisioning";
 import AdminBranding from "./pages/admin/AdminBranding";
 import Agents from "./pages/dashboard/Agents";
 import Campaigns from "./pages/dashboard/Campaigns";
+import CampaignDetail from "./pages/dashboard/CampaignDetail";
 import Leads from "./pages/dashboard/Leads";
 import DashboardIntegrations from "./pages/dashboard/DashboardIntegrations";
 import LiveDashboard from "./pages/dashboard/LiveDashboard";
@@ -93,6 +94,11 @@ const App = () => (
                   <Route path="/dashboard/campaigns" element={
                     <ProtectedRoute>
                       <Campaigns />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/campaigns/:id" element={
+                    <ProtectedRoute>
+                      <CampaignDetail />
                     </ProtectedRoute>
                   } />
                   <Route path="/dashboard/leads" element={
