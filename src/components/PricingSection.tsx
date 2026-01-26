@@ -94,7 +94,10 @@ const PricingSection = () => {
       // For unauthenticated users: go directly to Stripe Checkout (guest checkout)
       // After payment, redirect to signup
       if (!user) {
-        const response = await fetch("/api/billing/create-checkout", {
+        const apiBase = window.location.hostname.includes('lovable.app') 
+          ? 'https://app.leadsquad.ai' 
+          : '';
+        const response = await fetch(`${apiBase}/api/billing/create-checkout`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -126,8 +129,10 @@ const PricingSection = () => {
         return;
       }
 
-      // User is authenticated and has an organization - create checkout session
-      const response = await fetch("/api/billing/create-checkout", {
+      const apiBase = window.location.hostname.includes('lovable.app') 
+        ? 'https://app.leadsquad.ai' 
+        : '';
+      const response = await fetch(`${apiBase}/api/billing/create-checkout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
