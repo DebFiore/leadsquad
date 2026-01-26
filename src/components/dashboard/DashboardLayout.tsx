@@ -11,7 +11,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user, loading, organization } = useAuth();
+  const { user, loading, organization, organizationLoading } = useAuth();
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -22,11 +22,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    // Show onboarding if user is logged in but has no organization
-    if (!loading && user && organization === null) {
+    // Only show onboarding if:
+    // 1. User is logged in
+    // 2. Organization loading is complete
+    // 3. No organization exists
+    if (!loading && !organizationLoading && user && organization === null) {
       setShowOnboarding(true);
+    } else if (organization) {
+      setShowOnboarding(false);
     }
-  }, [user, loading, organization]);
+  }, [user, loading, organization, organizationLoading]);
 
   if (loading) {
     return (

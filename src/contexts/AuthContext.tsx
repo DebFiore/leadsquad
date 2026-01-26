@@ -9,6 +9,7 @@ interface AuthContextType {
   profile: Profile | null;
   organization: Organization | null;
   loading: boolean;
+  organizationLoading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   refreshOrganization: () => Promise<void>;
@@ -30,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
+  const [organizationLoading, setOrganizationLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -45,39 +47,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const fetchOrganization = async (userId: string) => {
-    // First try to find organization where user is owner
-    const { data: ownedOrg } = await supabase
-      .from('organizations')
-      .select('*')
-      .eq('owner_id', userId)
-      .maybeSingle();
-
-    if (ownedOrg) {
-      setOrganization(ownedOrg);
-      return ownedOrg;
-    }
-
-    // Then try to find organization where user is a member
-    const { data: membership } = await supabase
-      .from('organization_members')
-      .select('organization_id')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (membership) {
-      const { data: org } = await supabase
+    setOrganizationLoading(true);
+    try {
+      // First try to find organization where user is owner
+      const { data: ownedOrg } = await supabase
         .from('organizations')
         .select('*')
-        .eq('id', membership.organization_id)
-        .single();
-      
-      if (org) {
-        setOrganization(org);
-        return org;
-      }
-    }
+        .eq('owner_id', userId)
+        .maybeSingle();
 
-    return null;
+      if (ownedOrg) {
+        setOrganization(ownedOrg);
+        return ownedOrg;
+      }
+
+      // Then try to find organization where user is a member
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (membership) {
+        const { data: org } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', membership.organization_id)
+          .single();
+        
+        if (org) {
+          setOrganization(org);
+          return org;
+        }
+      }
+
+      setOrganization(null);
+      return null;
+    } finally {
+      setOrganizationLoading(false);
+    }
   };
 
   const refreshProfile = async () => {
@@ -116,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setProfile(null);
           setOrganization(null);
+          setOrganizationLoading(false);
         }
         setLoading(false);
       }
@@ -143,6 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       profile,
       organization,
       loading,
+      organizationLoading,
       signOut,
       refreshProfile,
       refreshOrganization,
