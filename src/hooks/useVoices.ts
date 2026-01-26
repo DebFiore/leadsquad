@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voiceService } from '@/services/voiceService';
 import { Voice } from '@/types/voice';
 import { toast } from 'sonner';
-
+import { supabase } from '@/lib/supabase';
 
 export const voiceKeys = {
   all: ['voices'] as const,
@@ -122,7 +122,14 @@ export function useSyncRetellVoices() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (adminSecret: string) => {
+    mutationFn: async () => {
+      // Get current session for auth
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('Not authenticated');
+      }
+      
       // Determine API base URL based on current hostname
       const hostname = window.location.hostname;
       const isProduction = hostname.includes('leadsquad.ai') || hostname.includes('app.leadsquad.ai');
@@ -132,7 +139,7 @@ export function useSyncRetellVoices() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminSecret}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
       });
       
