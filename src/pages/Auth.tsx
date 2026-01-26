@@ -26,7 +26,6 @@ const authSchema = z.object({
 type AuthFormValues = z.infer<typeof authSchema>;
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -55,33 +54,16 @@ export default function Auth() {
   const onSubmit = async (values: AuthFormValues) => {
     setIsLoading(true);
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: values.email,
-          password: values.password,
-        });
-        if (error) throw error;
-        toast.success('Welcome back!');
-        navigate(isAdminPortal ? '/admin' : '/dashboard');
-      } else {
-        const redirectUrl = `${window.location.origin}/dashboard`;
-        const { error } = await supabase.auth.signUp({
-          email: values.email,
-          password: values.password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-        if (error) throw error;
-        
-        // Check if email confirmation is required
-        toast.success('Check your email to confirm your account, or if email confirmation is disabled, you can now log in.');
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+      if (error) throw error;
+      toast.success('Welcome back!');
+      navigate(isAdminPortal ? '/admin' : '/dashboard');
     } catch (error: any) {
       console.error('Auth error:', error);
-      if (error.message?.includes('User already registered')) {
-        toast.error('This email is already registered. Please log in instead.');
-      } else if (error.message?.includes('Invalid login credentials')) {
+      if (error.message?.includes('Invalid login credentials')) {
         toast.error('Invalid email or password. Please try again.');
       } else {
         toast.error(error.message || 'An error occurred. Please try again.');
@@ -111,14 +93,12 @@ export default function Auth() {
               className="h-10 mx-auto mb-6"
             />
             <h1 className="text-2xl font-bold text-foreground">
-              {isAdminPortal ? 'Admin Portal' : (isLogin ? 'Welcome back' : 'Create your account')}
+              {isAdminPortal ? 'Admin Portal' : 'Welcome back'}
             </h1>
             <p className="text-muted-foreground mt-2">
               {isAdminPortal 
                 ? 'Sign in to access the admin dashboard'
-                : (isLogin 
-                  ? 'Enter your credentials to access your dashboard' 
-                  : 'Start your 14-day free trial today')}
+                : 'Enter your credentials to access your dashboard'}
             </p>
           </div>
 
@@ -187,31 +167,14 @@ export default function Auth() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isLogin ? 'Signing in...' : 'Creating account...'}
+                      Signing in...
                     </>
                   ) : (
-                    isLogin ? 'Sign In' : 'Create Account'
+                    'Sign In'
                   )}
                 </Button>
               </form>
             </Form>
-
-            {/* Hide signup option on admin portal */}
-            {!isAdminPortal && (
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {isLogin ? (
-                    <>Don't have an account? <span className="text-primary font-medium">Sign up</span></>
-                  ) : (
-                    <>Already have an account? <span className="text-primary font-medium">Sign in</span></>
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
