@@ -79,6 +79,8 @@ function VoiceLibraryContent() {
   const [editingVoice, setEditingVoice] = useState<Voice | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [syncSecret, setSyncSecret] = useState('');
 
   const { data: voices, isLoading } = useVoices();
   const createVoice = useCreateVoice();
@@ -209,7 +211,7 @@ function VoiceLibraryContent() {
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
-              onClick={() => syncRetellVoices.mutate()}
+              onClick={() => setSyncDialogOpen(true)}
               disabled={syncRetellVoices.isPending}
             >
               {syncRetellVoices.isPending ? (
@@ -547,6 +549,53 @@ function VoiceLibraryContent() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sync Secret Dialog */}
+      <Dialog open={syncDialogOpen} onOpenChange={setSyncDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sync Retell Voices</DialogTitle>
+            <DialogDescription>
+              Enter the admin sync secret to fetch voices from the Retell API.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              type="password"
+              placeholder="Enter admin sync secret..."
+              value={syncSecret}
+              onChange={(e) => setSyncSecret(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSyncDialogOpen(false);
+                setSyncSecret('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                syncRetellVoices.mutate(syncSecret, {
+                  onSuccess: () => {
+                    setSyncDialogOpen(false);
+                    setSyncSecret('');
+                  },
+                });
+              }}
+              disabled={syncRetellVoices.isPending || !syncSecret.trim()}
+            >
+              {syncRetellVoices.isPending && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              Sync Voices
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AdminLayout>
