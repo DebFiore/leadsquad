@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Rocket, Check, Loader2, Phone, Zap, Users, Sparkles, Server, Cpu, Wifi } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import logo from '@/assets/leadsquad-logo-transparent.png';
 
 interface DeploymentStep {
@@ -72,6 +74,7 @@ interface DeploymentScreenProps {
 
 export function DeploymentScreen({ organizationId, onComplete }: DeploymentScreenProps) {
   const navigate = useNavigate();
+  const { organization } = useAuth();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [stepProgress, setStepProgress] = useState(0);
   const [overallProgress, setOverallProgress] = useState(0);
@@ -79,8 +82,51 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
   const [deploymentStatus, setDeploymentStatus] = useState<'deploying' | 'success' | 'error'>('deploying');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(true);
+  const [isRedirectingToCheckout, setIsRedirectingToCheckout] = useState(false);
 
   const totalDuration = DEPLOYMENT_STEPS.reduce((acc, step) => acc + step.duration, 0);
+
+  // Handle redirect after deployment - check for pending checkout
+  const handlePostDeploymentRedirect = async () => {
+    const pendingPriceId = localStorage.getItem('pendingCheckoutPriceId');
+    
+    if (pendingPriceId && organization?.id) {
+      // User came from pricing - redirect to Stripe checkout
+      setIsRedirectingToCheckout(true);
+      try {
+        const response = await fetch('/api/billing/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            priceId: pendingPriceId,
+            organizationId: organization.id,
+            successUrl: `${window.location.origin}/dashboard/live?checkout=success`,
+            cancelUrl: `${window.location.origin}/dashboard/billing`,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error || 'Failed to create checkout session');
+
+        // Clear the stored priceId
+        localStorage.removeItem('pendingCheckoutPriceId');
+
+        // Redirect to Stripe Checkout
+        if (data.url) {
+          window.location.href = data.url;
+          return;
+        }
+      } catch (error: any) {
+        console.error('Checkout redirect error:', error);
+        toast.error('Failed to start checkout. You can subscribe from the billing page.');
+        localStorage.removeItem('pendingCheckoutPriceId');
+      }
+    }
+    
+    // Default: go to live dashboard
+    navigate('/dashboard/live', { replace: true });
+  };
 
   // Trigger n8n webhook on mount
   useEffect(() => {
@@ -170,10 +216,10 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
           setOverallProgress(100);
           setIsPolling(false);
           
-          // Wait a moment then redirect
+          // Wait a moment then check for pending checkout or redirect to dashboard
           setTimeout(() => {
             onComplete();
-            navigate('/dashboard/live', { replace: true });
+            handlePostDeploymentRedirect();
           }, 2000);
         } else if (data?.status === 'failed') {
           setDeploymentStatus('error');
@@ -186,7 +232,7 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
     }, 3000);
 
     return () => clearInterval(pollInterval);
-  }, [organizationId, isPolling, navigate, onComplete]);
+  }, [organizationId, isPolling, onComplete]);
 
   // Auto-complete after animation finishes (fallback if n8n hasn't responded)
   useEffect(() => {
@@ -200,14 +246,14 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
           
           setTimeout(() => {
             onComplete();
-            navigate('/dashboard/live', { replace: true });
+            handlePostDeploymentRedirect();
           }, 2000);
         }
       }, 5000);
 
       return () => clearTimeout(timeout);
     }
-  }, [currentStepIndex, stepProgress, deploymentStatus, navigate, onComplete]);
+  }, [currentStepIndex, stepProgress, deploymentStatus, onComplete]);
 
   const currentStep = DEPLOYMENT_STEPS[currentStepIndex];
 
@@ -352,7 +398,9 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
           {deploymentStatus === 'success' && (
             <div className="text-center mt-8">
               <p className="text-sm text-muted-foreground mb-4">
-                Redirecting you to your live dashboard...
+                {isRedirectingToCheckout 
+                  ? 'Redirecting you to complete your subscription...'
+                  : 'Redirecting you to your live dashboard...'}
               </p>
               <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
             </div>
