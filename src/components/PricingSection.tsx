@@ -1,10 +1,25 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Star, Phone } from "lucide-react";
+import { Check, Star, Phone, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+const PRICE_IDS = {
+  starter: {
+    monthly: "price_1StrhbE7OFNZIO4SHVnP8kAW",
+    annual: "price_1StrhbE7OFNZIO4SHVnP8kAW", // Update if you have a separate annual price
+  },
+  scale: {
+    monthly: "price_1StriLE7OFNZIO4SwhUVEan0",
+    annual: "price_1StriLE7OFNZIO4SwhUVEan0", // Update if you have a separate annual price
+  },
+};
 
 const plans = [
   {
     name: "STARTER",
+    planKey: "starter" as const,
     description: "For solopreneurs and small teams ready to multiply their lead conversion without multiplying their costs.",
     monthlyPrice: "$197",
     annualPrice: "$150",
@@ -27,6 +42,7 @@ const plans = [
   },
   {
     name: "SCALE",
+    planKey: "scale" as const,
     description: "For ambitious businesses handling serious lead volume across multiple channels and team members.",
     monthlyPrice: "$497",
     annualPrice: "$450",
@@ -46,6 +62,7 @@ const plans = [
   },
   {
     name: "MANAGED SERVICES",
+    planKey: null,
     description: "For businesses that want white-glove service with experts handling every detail of their AI lead conversion.",
     monthlyPrice: "Let's Talk",
     annualPrice: "Let's Talk",
@@ -64,6 +81,60 @@ const plans = [
 
 const PricingSection = () => {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { user, organization, loading: authLoading } = useAuth();
+
+  const handleGetStarted = async (planKey: "starter" | "scale") => {
+    // If not authenticated, redirect to auth with plan info
+    if (!user) {
+      const priceId = isAnnual ? PRICE_IDS[planKey].annual : PRICE_IDS[planKey].monthly;
+      navigate(`/auth?redirect=checkout&priceId=${priceId}`);
+      return;
+    }
+
+    // If authenticated but no organization, redirect to onboarding
+    if (!organization) {
+      toast.error("Please complete onboarding first");
+      navigate("/onboarding");
+      return;
+    }
+
+    // User is authenticated and has an organization - create checkout session
+    setLoadingPlan(planKey);
+    try {
+      const priceId = isAnnual ? PRICE_IDS[planKey].annual : PRICE_IDS[planKey].monthly;
+      
+      const response = await fetch("/api/billing/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          priceId,
+          organizationId: organization.id,
+          successUrl: `${window.location.origin}/dashboard/billing?success=true`,
+          cancelUrl: `${window.location.origin}/#pricing`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast.error(error.message || "Failed to start checkout");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <section id="pricing" className="section-padding bg-background">
@@ -137,21 +208,36 @@ const PricingSection = () => {
               </div>
 
               {/* CTA below price */}
-              <Button
-                variant={plan.popular ? "hero" : "outline"}
-                className="w-full mb-6"
-                size="lg"
-                asChild={plan.isCustom}
-              >
-                {plan.isCustom ? (
+              {plan.isCustom ? (
+                <Button
+                  variant="outline"
+                  className="w-full mb-6"
+                  size="lg"
+                  asChild
+                >
                   <a href="https://calendly.com/mergeai/leadsquad-managed-services" target="_blank" rel="noopener noreferrer">
                     <Phone className="w-4 h-4 mr-2" />
                     {plan.cta}
                   </a>
-                ) : (
-                  plan.cta
-                )}
-              </Button>
+                </Button>
+              ) : (
+                <Button
+                  variant={plan.popular ? "hero" : "outline"}
+                  className="w-full mb-6"
+                  size="lg"
+                  onClick={() => plan.planKey && handleGetStarted(plan.planKey)}
+                  disabled={loadingPlan === plan.planKey || authLoading}
+                >
+                  {loadingPlan === plan.planKey ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    plan.cta
+                  )}
+                </Button>
+              )}
 
               {/* Features */}
               <ul className="space-y-3 mb-8">
