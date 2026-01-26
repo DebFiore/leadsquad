@@ -2,14 +2,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { BrandingProvider } from "@/contexts/BrandingContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useSubdomainRedirect } from "@/hooks/useSubdomainRedirect";
+import { useSubdomainRedirect, getInitialRouteForSubdomain } from "@/hooks/useSubdomainRedirect";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -56,6 +56,9 @@ const SubdomainRouter = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Determine initial redirect for subdomain at module load time
+const initialSubdomainRoute = getInitialRouteForSubdomain();
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -69,8 +72,12 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <Routes>
-                    {/* Public routes */}
-                    <Route path="/" element={<Index />} />
+                    {/* Root route - redirect based on subdomain */}
+                    <Route path="/" element={
+                      initialSubdomainRoute 
+                        ? <Navigate to={initialSubdomainRoute} replace /> 
+                        : <Index />
+                    } />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/about" element={<About />} />

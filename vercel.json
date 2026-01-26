@@ -1,46 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/:path*",
-      "destination": "/dashboard/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "app.leadsquad.ai"
-        }
-      ]
-    },
-    {
-      "source": "/",
-      "destination": "/dashboard",
-      "has": [
-        {
-          "type": "host",
-          "value": "app.leadsquad.ai"
-        }
-      ]
-    },
-    {
-      "source": "/:path*",
-      "destination": "/admin/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.leadsquad.ai"
-        }
-      ]
-    },
-    {
-      "source": "/",
-      "destination": "/admin",
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.leadsquad.ai"
-        }
-      ]
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
