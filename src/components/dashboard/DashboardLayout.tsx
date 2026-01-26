@@ -15,6 +15,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  // Detect if we're on the admin subdomain - skip onboarding for admin portal
+  const isAdminPortal = window.location.hostname === 'admin.leadsquad.ai' ||
+    window.location.pathname.startsWith('/admin');
+
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
@@ -22,16 +26,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    // Only show onboarding if:
+    // Only show onboarding on client portal (not admin portal):
     // 1. User is logged in
     // 2. Organization loading is complete
     // 3. No organization exists
-    if (!loading && !organizationLoading && user && organization === null) {
+    // 4. NOT on admin subdomain
+    if (!isAdminPortal && !loading && !organizationLoading && user && organization === null) {
       setShowOnboarding(true);
-    } else if (organization) {
+    } else if (organization || isAdminPortal) {
       setShowOnboarding(false);
     }
-  }, [user, loading, organization, organizationLoading]);
+  }, [user, loading, organization, organizationLoading, isAdminPortal]);
 
   if (loading) {
     return (
