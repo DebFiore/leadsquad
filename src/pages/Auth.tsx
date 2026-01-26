@@ -44,12 +44,37 @@ export default function Auth() {
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       if (session) {
-        navigate(isAdminPortal ? '/admin' : '/dashboard');
+        // If on admin portal, check if they're a superadmin before redirecting
+        if (isAdminPortal) {
+          const { data: adminData } = await supabase
+            .from('superadmins')
+            .select('id')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          
+          if (adminData) {
+            // User is a superadmin, redirect to admin dashboard
+            navigate('/admin');
+          }
+          // If not a superadmin, stay on auth page so they can sign out and use different credentials
+        } else {
+          // For client portal, redirect to dashboard
+          navigate('/dashboard');
+        }
       }
-    });
+    };
+    
+    checkSession();
   }, [navigate, isAdminPortal]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success('Signed out. Please sign in with admin credentials.');
+  };
 
   const onSubmit = async (values: AuthFormValues) => {
     setIsLoading(true);
@@ -101,6 +126,18 @@ export default function Auth() {
                 : 'Enter your credentials to access your dashboard'}
             </p>
           </div>
+
+          {/* Sign out option for users who need to switch accounts */}
+          {isAdminPortal && (
+            <div className="text-center text-sm text-muted-foreground mb-4">
+              <button 
+                onClick={handleSignOut}
+                className="text-primary hover:underline"
+              >
+                Sign out of current session
+              </button>
+            </div>
+          )}
 
           <div className="bg-card border border-border rounded-xl p-6">
             <Form {...form}>
