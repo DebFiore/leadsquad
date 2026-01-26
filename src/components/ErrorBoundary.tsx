@@ -36,7 +36,15 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleGoHome = () => {
-    window.location.href = '/dashboard';
+    // Redirect based on subdomain
+    const hostname = window.location.hostname;
+    if (hostname === 'admin.leadsquad.ai') {
+      window.location.href = '/admin';
+    } else if (hostname === 'app.leadsquad.ai') {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.href = '/';
+    }
   };
 
   public render() {

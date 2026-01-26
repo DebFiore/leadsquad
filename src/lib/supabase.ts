@@ -1,66 +1,70 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'https://gcqqqbeufblpzdcwxoxi.supabase.co'
 const supabaseAnonKey = 'sb_publishable_SoemcfW6PpW6yGNoYrRpbQ_Rfyx51x2'
 
+// In-memory storage fallback for when localStorage is blocked
+const memoryStorage: Record<string, string> = {};
+
 // Custom storage adapter that handles cross-origin/third-party cookie blocking
-// This prevents "The operation is insecure" errors in Firefox
-const createSafeStorage = () => {
-  const memoryStorage: Record<string, string> = {};
-  
-  const isStorageAvailable = () => {
+// This prevents "The operation is insecure" errors in Firefox and strict browsers
+const safeStorage = {
+  getItem: (key: string): string | null => {
     try {
-      const test = '__storage_test__';
-      localStorage.setItem(test, test);
-      localStorage.removeItem(test);
-      return true;
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return localStorage.getItem(key);
+      }
     } catch {
-      return false;
+      // localStorage blocked - use memory
     }
-  };
-
-  const storageAvailable = isStorageAvailable();
-
-  return {
-    getItem: (key: string): string | null => {
-      try {
-        if (storageAvailable) {
-          return localStorage.getItem(key);
-        }
-        return memoryStorage[key] || null;
-      } catch {
-        return memoryStorage[key] || null;
+    return memoryStorage[key] || null;
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(key, value);
+        return;
       }
-    },
-    setItem: (key: string, value: string): void => {
-      try {
-        if (storageAvailable) {
-          localStorage.setItem(key, value);
-        } else {
-          memoryStorage[key] = value;
-        }
-      } catch {
-        memoryStorage[key] = value;
+    } catch {
+      // localStorage blocked - use memory
+    }
+    memoryStorage[key] = value;
+  },
+  removeItem: (key: string): void => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.removeItem(key);
       }
-    },
-    removeItem: (key: string): void => {
-      try {
-        if (storageAvailable) {
-          localStorage.removeItem(key);
-        }
-        delete memoryStorage[key];
-      } catch {
-        delete memoryStorage[key];
-      }
-    },
-  };
+    } catch {
+      // localStorage blocked
+    }
+    delete memoryStorage[key];
+  },
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: createSafeStorage(),
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-})
+// Create the Supabase client with safe storage
+let supabase: SupabaseClient;
+
+try {
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      storage: safeStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+  });
+} catch (error) {
+  console.error('Failed to create Supabase client:', error);
+  // Create a minimal client without persistence as fallback
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      storage: safeStorage,
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+export { supabase };

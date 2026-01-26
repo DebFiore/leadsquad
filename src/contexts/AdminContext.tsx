@@ -46,7 +46,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     };
 
-    checkAdminStatus();
+    // Add a small delay to ensure auth is fully initialized
+    const timer = setTimeout(() => {
+      checkAdminStatus();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [user]);
 
   const exitImpersonation = () => {
