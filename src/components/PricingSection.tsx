@@ -86,25 +86,47 @@ const PricingSection = () => {
   const { user, organization, loading: authLoading } = useAuth();
 
   const handleGetStarted = async (planKey: "starter" | "scale") => {
-    // If not authenticated, redirect to auth with plan info
-    if (!user) {
-      const priceId = isAnnual ? PRICE_IDS[planKey].annual : PRICE_IDS[planKey].monthly;
-      navigate(`/auth?redirect=checkout&priceId=${priceId}`);
-      return;
-    }
-
-    // If authenticated but no organization, redirect to onboarding
-    if (!organization) {
-      toast.error("Please complete onboarding first");
-      navigate("/onboarding");
-      return;
-    }
-
-    // User is authenticated and has an organization - create checkout session
     setLoadingPlan(planKey);
+    
     try {
       const priceId = isAnnual ? PRICE_IDS[planKey].annual : PRICE_IDS[planKey].monthly;
       
+      // For unauthenticated users: go directly to Stripe Checkout (guest checkout)
+      // After payment, redirect to signup
+      if (!user) {
+        const response = await fetch("/api/billing/create-checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            priceId,
+            // No organizationId - guest checkout
+            successUrl: `${window.location.origin}/auth?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${window.location.origin}/#pricing`,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to create checkout session");
+        }
+
+        if (data.url) {
+          window.location.href = data.url;
+        }
+        return;
+      }
+
+      // If authenticated but no organization, redirect to onboarding
+      if (!organization) {
+        toast.error("Please complete onboarding first");
+        navigate("/onboarding");
+        return;
+      }
+
+      // User is authenticated and has an organization - create checkout session
       const response = await fetch("/api/billing/create-checkout", {
         method: "POST",
         headers: {

@@ -29,10 +29,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { priceId, organizationId, successUrl, cancelUrl } = req.body;
 
-    if (!priceId || !organizationId) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!priceId) {
+      return res.status(400).json({ error: 'Missing priceId' });
     }
 
+    // Guest checkout flow (no organization yet - user pays first, then signs up)
+    if (!organizationId) {
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        // Collect customer email for later account linking
+        customer_creation: 'always',
+        billing_address_collection: 'required',
+        metadata: {
+          flow: 'guest_checkout',
+          price_id: priceId,
+        },
+      });
+
+      return res.status(200).json({ url: session.url });
+    }
+
+    // Existing organization checkout flow
     // Get or create Stripe customer
     const { data: subscription } = await supabase
       .from('subscriptions')

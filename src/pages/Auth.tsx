@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, Mail, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
 import logoImage from '@/assets/leadsquad-logo-transparent.png';
 
 const authSchema = z.object({
@@ -32,7 +32,12 @@ export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check if user is coming from pricing checkout
+  // Check if user is coming from successful Stripe payment
+  const paymentStatus = searchParams.get('payment');
+  const sessionId = searchParams.get('session_id');
+  const isPostPaymentFlow = paymentStatus === 'success' && sessionId;
+
+  // Legacy: Check if user is coming from pricing checkout (old flow)
   const redirectType = searchParams.get('redirect');
   const priceId = searchParams.get('priceId');
   const isCheckoutFlow = redirectType === 'checkout' && priceId;
@@ -41,16 +46,20 @@ export default function Auth() {
   const isAdminPortal = window.location.hostname === 'admin.leadsquad.ai' ||
     window.location.pathname.startsWith('/admin');
 
-  // Default to signup mode when coming from pricing, and store priceId
+  // Default to signup mode when coming from payment or checkout flow
   useEffect(() => {
-    if (isCheckoutFlow && !isAdminPortal) {
+    if ((isPostPaymentFlow || isCheckoutFlow) && !isAdminPortal) {
       setIsSignUp(true);
-      // Store the priceId for post-onboarding checkout
+      // Store the session ID for linking after account creation
+      if (sessionId) {
+        localStorage.setItem('pendingStripeSessionId', sessionId);
+      }
+      // Legacy: store priceId if coming from old checkout flow
       if (priceId) {
         localStorage.setItem('pendingCheckoutPriceId', priceId);
       }
     }
-  }, [isCheckoutFlow, isAdminPortal, priceId]);
+  }, [isPostPaymentFlow, isCheckoutFlow, isAdminPortal, sessionId, priceId]);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
@@ -75,22 +84,19 @@ export default function Auth() {
             .maybeSingle();
           
           if (adminData) {
-            // User is a superadmin, redirect to admin dashboard
             navigate('/admin');
           }
-          // If not a superadmin, stay on auth page so they can sign out and use different credentials
-        } else if (isCheckoutFlow) {
-          // If coming from checkout, redirect to onboarding (they'll need to complete that first)
+        } else if (isPostPaymentFlow || isCheckoutFlow) {
+          // If coming from payment/checkout, redirect to onboarding
           navigate('/onboarding');
         } else {
-          // For client portal, redirect to dashboard
           navigate('/dashboard');
         }
       }
     };
     
     checkSession();
-  }, [navigate, isAdminPortal, isCheckoutFlow]);
+  }, [navigate, isAdminPortal, isPostPaymentFlow, isCheckoutFlow]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -112,7 +118,6 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Account created! Redirecting to setup...');
-        // Redirect to onboarding after signup
         navigate('/onboarding');
       } else {
         // Sign in flow
@@ -123,8 +128,7 @@ export default function Auth() {
         if (error) throw error;
         toast.success('Welcome back!');
         
-        if (isCheckoutFlow) {
-          // If coming from checkout, redirect to onboarding
+        if (isPostPaymentFlow || isCheckoutFlow) {
           navigate('/onboarding');
         } else {
           navigate(isAdminPortal ? '/admin' : '/dashboard');
@@ -148,14 +152,18 @@ export default function Auth() {
   // Determine header text based on context
   const getHeaderText = () => {
     if (isAdminPortal) return 'Admin Portal';
-    if (isCheckoutFlow) {
-      return isSignUp ? 'Create your account' : 'Welcome back';
-    }
+    if (isPostPaymentFlow) return 'Payment Successful!';
+    if (isCheckoutFlow) return isSignUp ? 'Create your account' : 'Welcome back';
     return 'Welcome back';
   };
 
   const getSubheaderText = () => {
     if (isAdminPortal) return 'Sign in to access the admin dashboard';
+    if (isPostPaymentFlow) {
+      return isSignUp 
+        ? 'Create your account to activate your subscription' 
+        : 'Sign in to activate your subscription';
+    }
     if (isCheckoutFlow) {
       return isSignUp 
         ? 'Sign up to continue with your subscription' 
@@ -163,6 +171,9 @@ export default function Auth() {
     }
     return 'Enter your credentials to access your dashboard';
   };
+
+  // Show signup/signin toggle for payment or checkout flows
+  const showToggle = (isPostPaymentFlow || isCheckoutFlow) && !isAdminPortal;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -178,11 +189,21 @@ export default function Auth() {
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <img 
-              src={logoImage} 
-              alt="LeadSquad" 
-              className="h-10 mx-auto mb-6"
-            />
+            {/* Show success checkmark for post-payment flow */}
+            {isPostPaymentFlow && (
+              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+            )}
+            
+            {!isPostPaymentFlow && (
+              <img 
+                src={logoImage} 
+                alt="LeadSquad" 
+                className="h-10 mx-auto mb-6"
+              />
+            )}
+            
             <h1 className="text-2xl font-bold text-foreground">
               {getHeaderText()}
             </h1>
@@ -277,8 +298,8 @@ export default function Auth() {
               </form>
             </Form>
 
-            {/* Toggle between sign in and sign up - only show for checkout flow */}
-            {isCheckoutFlow && !isAdminPortal && (
+            {/* Toggle between sign in and sign up */}
+            {showToggle && (
               <div className="mt-6 text-center text-sm">
                 <span className="text-muted-foreground">
                   {isSignUp ? 'Already have an account?' : "Don't have an account?"}
