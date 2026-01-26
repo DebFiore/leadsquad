@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../lib/types.js';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
@@ -53,7 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     event = stripe.webhooks.constructEvent(
       buf,
-      sig,
+      sig as string,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err: any) {

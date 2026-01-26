@@ -1,5 +1,5 @@
 // api/webhooks/vapi.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../lib/types.js';
 import { createClient } from '@supabase/supabase-js';
 import { verifyVapiSignature, extractOrganizationId } from '../lib/webhookUtils.js';
 

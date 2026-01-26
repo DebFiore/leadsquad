@@ -1,5 +1,5 @@
 // api/webhooks/n8n.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../lib/types.js';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
