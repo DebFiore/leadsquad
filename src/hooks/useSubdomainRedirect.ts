@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /**
@@ -12,14 +12,15 @@ export const useSubdomainRedirect = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  // Use useLayoutEffect for synchronous redirect before paint
+  useLayoutEffect(() => {
     const hostname = window.location.hostname;
     const path = location.pathname;
 
     // app.leadsquad.ai - Client portal
     if (hostname === "app.leadsquad.ai") {
       // Redirect root to dashboard
-      if (path === "/") {
+      if (path === "/" || path === "") {
         navigate("/dashboard", { replace: true });
         return;
       }
@@ -32,8 +33,8 @@ export const useSubdomainRedirect = () => {
     
     // admin.leadsquad.ai - Agency admin portal
     if (hostname === "admin.leadsquad.ai") {
-      // Redirect root to admin
-      if (path === "/") {
+      // Redirect root or any non-admin path to admin
+      if (path === "/" || path === "") {
         navigate("/admin", { replace: true });
         return;
       }
@@ -47,6 +48,37 @@ export const useSubdomainRedirect = () => {
         navigate("/admin", { replace: true });
         return;
       }
+      // Block marketing pages on admin subdomain
+      if (!path.startsWith("/admin") && !path.startsWith("/auth")) {
+        navigate("/admin", { replace: true });
+        return;
+      }
     }
   }, [location.pathname, navigate]);
+};
+
+/**
+ * Get the initial route based on hostname - call this before router renders
+ */
+export const getInitialRouteForSubdomain = (): string | null => {
+  const hostname = window.location.hostname;
+  const path = window.location.pathname;
+  
+  if (hostname === "app.leadsquad.ai") {
+    if (path === "/" || path === "" || path.startsWith("/admin")) {
+      return "/dashboard";
+    }
+  }
+  
+  if (hostname === "admin.leadsquad.ai") {
+    if (path === "/" || path === "" || path.startsWith("/dashboard") || path === "/onboarding") {
+      return "/admin";
+    }
+    // Also redirect marketing pages to admin
+    if (!path.startsWith("/admin") && !path.startsWith("/auth")) {
+      return "/admin";
+    }
+  }
+  
+  return null;
 };
