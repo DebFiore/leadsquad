@@ -22,7 +22,7 @@ const plans = [
     planKey: "starter" as const,
     description: "For solopreneurs and small teams ready to multiply their lead conversion without multiplying their costs.",
     monthlyPrice: "$197",
-    annualPrice: "$150",
+    annualPrice: "$177",
     period: "/month",
     features: [
       "1 Squad / 3 AI Agents",
@@ -45,7 +45,7 @@ const plans = [
     planKey: "scale" as const,
     description: "For ambitious businesses handling serious lead volume across multiple channels and team members.",
     monthlyPrice: "$497",
-    annualPrice: "$450",
+    annualPrice: "$477",
     period: "/month",
     features: [
       "Everything in Starter, Plus:",
