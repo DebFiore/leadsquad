@@ -8,7 +8,7 @@ export const adminService = {
     const { data, error } = await supabase
       .from('superadmins')
       .select('id')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
     
     if (error) {
