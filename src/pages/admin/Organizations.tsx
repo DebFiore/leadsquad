@@ -22,6 +22,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,18 +48,25 @@ import {
   Megaphone,
   ExternalLink,
   Loader2,
+  Trash2,
 } from 'lucide-react';
 import { useAllOrganizations } from '@/hooks/useAdminStats';
 import { useAdmin } from '@/contexts/AdminContext';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { Organization } from '@/types/database';
 
 function OrganizationsContent() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orgToDelete, setOrgToDelete] = useState<Organization | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { data: organizations, isLoading } = useAllOrganizations();
+  const { data: organizations, isLoading, refetch } = useAllOrganizations();
   const { setImpersonatedOrg } = useAdmin();
 
   const filteredOrgs = organizations?.filter(org => {
@@ -62,6 +79,36 @@ function OrganizationsContent() {
   const handleImpersonate = (org: any) => {
     setImpersonatedOrg(org);
     navigate('/dashboard');
+  };
+
+  const handleDeleteClick = (org: Organization) => {
+    setOrgToDelete(org);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!orgToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // Delete organization (cascade will handle related records if configured)
+      const { error } = await supabase
+        .from('organizations')
+        .delete()
+        .eq('id', orgToDelete.id);
+      
+      if (error) throw error;
+      
+      toast.success(`${orgToDelete.name} has been deleted`);
+      refetch();
+    } catch (error: any) {
+      console.error('Error deleting organization:', error);
+      toast.error(error.message || 'Failed to delete organization');
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setOrgToDelete(null);
+    }
   };
 
   const getPlanBadgeColor = (plan: string) => {
@@ -271,6 +318,14 @@ function OrganizationsContent() {
                               <ExternalLink className="h-4 w-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteClick(org)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Organization
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -281,6 +336,37 @@ function OrganizationsContent() {
             )}
           </CardContent>
         </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Organization</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete <strong>{orgToDelete?.name}</strong>? 
+                This will permanently remove all associated data including campaigns, leads, 
+                call logs, and billing records. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Organization'
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminLayout>
   );
