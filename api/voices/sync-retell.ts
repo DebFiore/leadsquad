@@ -27,13 +27,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Validate admin secret
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const retellApiKey = process.env.RETELL_API_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(500).json({ error: 'Supabase configuration missing' });
+    }
+
+    // Validate user is authenticated and is a superadmin
     const authHeader = req.headers['authorization'];
     const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : '';
-    const adminSecret = process.env.ADMIN_SYNC_SECRET;
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized - No token provided' });
+    }
 
-    if (!adminSecret || token !== adminSecret) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    // Create client with user's token to verify auth
+    const supabaseAuth = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Verify the JWT and get user
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
+    
+    if (authError || !user) {
+      return res.status(401).json({ error: 'Unauthorized - Invalid token' });
+    }
+
+    // Check if user is a superadmin
+    const { data: superadmin, error: superadminError } = await supabaseAuth
+      .from('superadmins')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    if (superadminError || !superadmin) {
+      return res.status(403).json({ error: 'Forbidden - Superadmin access required' });
     }
 
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
