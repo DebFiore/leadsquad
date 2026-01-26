@@ -43,8 +43,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ],
         success_url: successUrl,
         cancel_url: cancelUrl,
-        // Collect customer email for later account linking
-        customer_creation: 'always',
         billing_address_collection: 'required',
         metadata: {
           flow: 'guest_checkout',
