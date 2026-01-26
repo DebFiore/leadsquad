@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,11 +28,25 @@ type AuthFormValues = z.infer<typeof authSchema>;
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if user is coming from pricing checkout
+  const redirectType = searchParams.get('redirect');
+  const priceId = searchParams.get('priceId');
+  const isCheckoutFlow = redirectType === 'checkout' && priceId;
 
   // Detect if we're on the admin subdomain
   const isAdminPortal = window.location.hostname === 'admin.leadsquad.ai' ||
     window.location.pathname.startsWith('/admin');
+
+  // Default to signup mode when coming from pricing
+  useEffect(() => {
+    if (isCheckoutFlow && !isAdminPortal) {
+      setIsSignUp(true);
+    }
+  }, [isCheckoutFlow, isAdminPortal]);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
@@ -61,6 +75,9 @@ export default function Auth() {
             navigate('/admin');
           }
           // If not a superadmin, stay on auth page so they can sign out and use different credentials
+        } else if (isCheckoutFlow) {
+          // If coming from checkout, redirect to onboarding (they'll need to complete that first)
+          navigate('/onboarding');
         } else {
           // For client portal, redirect to dashboard
           navigate('/dashboard');
@@ -69,7 +86,7 @@ export default function Auth() {
     };
     
     checkSession();
-  }, [navigate, isAdminPortal]);
+  }, [navigate, isAdminPortal, isCheckoutFlow]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -79,23 +96,68 @@ export default function Auth() {
   const onSubmit = async (values: AuthFormValues) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      });
-      if (error) throw error;
-      toast.success('Welcome back!');
-      navigate(isAdminPortal ? '/admin' : '/dashboard');
+      if (isSignUp) {
+        // Sign up flow
+        const redirectUrl = `${window.location.origin}/`;
+        const { error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+          options: {
+            emailRedirectTo: redirectUrl,
+          },
+        });
+        if (error) throw error;
+        toast.success('Account created! Redirecting to setup...');
+        // Redirect to onboarding after signup
+        navigate('/onboarding');
+      } else {
+        // Sign in flow
+        const { error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+        if (error) throw error;
+        toast.success('Welcome back!');
+        
+        if (isCheckoutFlow) {
+          // If coming from checkout, redirect to onboarding
+          navigate('/onboarding');
+        } else {
+          navigate(isAdminPortal ? '/admin' : '/dashboard');
+        }
+      }
     } catch (error: any) {
       console.error('Auth error:', error);
       if (error.message?.includes('Invalid login credentials')) {
         toast.error('Invalid email or password. Please try again.');
+      } else if (error.message?.includes('User already registered')) {
+        toast.error('This email is already registered. Please sign in instead.');
+        setIsSignUp(false);
       } else {
         toast.error(error.message || 'An error occurred. Please try again.');
       }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Determine header text based on context
+  const getHeaderText = () => {
+    if (isAdminPortal) return 'Admin Portal';
+    if (isCheckoutFlow) {
+      return isSignUp ? 'Create your account' : 'Welcome back';
+    }
+    return 'Welcome back';
+  };
+
+  const getSubheaderText = () => {
+    if (isAdminPortal) return 'Sign in to access the admin dashboard';
+    if (isCheckoutFlow) {
+      return isSignUp 
+        ? 'Sign up to continue with your subscription' 
+        : 'Sign in to continue with your subscription';
+    }
+    return 'Enter your credentials to access your dashboard';
   };
 
   return (
@@ -118,12 +180,10 @@ export default function Auth() {
               className="h-10 mx-auto mb-6"
             />
             <h1 className="text-2xl font-bold text-foreground">
-              {isAdminPortal ? 'Admin Portal' : 'Welcome back'}
+              {getHeaderText()}
             </h1>
             <p className="text-muted-foreground mt-2">
-              {isAdminPortal 
-                ? 'Sign in to access the admin dashboard'
-                : 'Enter your credentials to access your dashboard'}
+              {getSubheaderText()}
             </p>
           </div>
 
@@ -204,14 +264,30 @@ export default function Auth() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      {isSignUp ? 'Creating account...' : 'Signing in...'}
                     </>
                   ) : (
-                    'Sign In'
+                    isSignUp ? 'Create Account' : 'Sign In'
                   )}
                 </Button>
               </form>
             </Form>
+
+            {/* Toggle between sign in and sign up - only show for checkout flow */}
+            {isCheckoutFlow && !isAdminPortal && (
+              <div className="mt-6 text-center text-sm">
+                <span className="text-muted-foreground">
+                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                </span>{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-primary hover:underline font-medium"
+                >
+                  {isSignUp ? 'Sign in' : 'Sign up'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
