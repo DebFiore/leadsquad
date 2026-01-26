@@ -123,9 +123,21 @@ export function useSyncRetellVoices() {
   
   return useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('sync-retell-voices');
+      // Call the edge function on the Lovable Cloud instance
+      const response = await fetch('https://ywfxxzlzxqvjdjkyxyda.supabase.co/functions/v1/sync-retell-voices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
       
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Request failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
       if (data?.error) throw new Error(data.error);
       
       return data as { success: boolean; total: number; new: number; updated: number };
