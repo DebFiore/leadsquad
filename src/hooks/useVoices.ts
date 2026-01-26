@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voiceService } from '@/services/voiceService';
 import { Voice } from '@/types/voice';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 export const voiceKeys = {
   all: ['voices'] as const,
@@ -112,6 +113,29 @@ export function useToggleVoiceActive() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to toggle voice: ${error.message}`);
+    },
+  });
+}
+
+// Admin: Sync voices from Retell API
+export function useSyncRetellVoices() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('sync-retell-voices');
+      
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      
+      return data as { success: boolean; total: number; new: number; updated: number };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: voiceKeys.all });
+      toast.success(`Synced ${data.total} Retell voices (${data.new} new, ${data.updated} updated)`);
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to sync Retell voices: ${error.message}`);
     },
   });
 }

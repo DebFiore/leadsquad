@@ -49,8 +49,9 @@ import {
   Search,
   GripVertical,
   Loader2,
+  RefreshCw,
 } from 'lucide-react';
-import { useVoices, useCreateVoice, useUpdateVoice, useDeleteVoice } from '@/hooks/useVoices';
+import { useVoices, useCreateVoice, useUpdateVoice, useDeleteVoice, useSyncRetellVoices } from '@/hooks/useVoices';
 import { Voice, VoiceGender } from '@/types/voice';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -83,6 +84,7 @@ function VoiceLibraryContent() {
   const createVoice = useCreateVoice();
   const updateVoice = useUpdateVoice();
   const deleteVoice = useDeleteVoice();
+  const syncRetellVoices = useSyncRetellVoices();
 
   const form = useForm<VoiceFormData>({
     resolver: zodResolver(voiceSchema),
@@ -204,10 +206,24 @@ function VoiceLibraryContent() {
               Manage available voices for campaigns
             </p>
           </div>
-          <Button onClick={() => handleOpenDialog()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Voice
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => syncRetellVoices.mutate()}
+              disabled={syncRetellVoices.isPending}
+            >
+              {syncRetellVoices.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Sync from Retell
+            </Button>
+            <Button onClick={() => handleOpenDialog()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Voice
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
