@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { voiceService } from '@/services/voiceService';
 import { Voice } from '@/types/voice';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+
 
 export const voiceKeys = {
   all: ['voices'] as const,
@@ -122,14 +122,18 @@ export function useSyncRetellVoices() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async () => {
-      // Call the edge function on the Lovable Cloud instance
-      const response = await fetch('https://ywfxxzlzxqvjdjkyxyda.supabase.co/functions/v1/sync-retell-voices', {
+    mutationFn: async (adminSecret: string) => {
+      // Determine API base URL based on current hostname
+      const hostname = window.location.hostname;
+      const isProduction = hostname.includes('leadsquad.ai') || hostname.includes('app.leadsquad.ai');
+      const apiBase = isProduction ? '' : 'https://app.leadsquad.ai';
+      
+      const response = await fetch(`${apiBase}/api/voices/sync-retell`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminSecret}`,
         },
-        body: JSON.stringify({}),
       });
       
       if (!response.ok) {
