@@ -78,6 +78,8 @@ export const AGENT_CONFIGS: Record<AgentRole, {
   },
 };
 
+// Legacy hardcoded voices - deprecated, use useVoices() hook instead
+// These are kept for backwards compatibility
 export const ELEVENLABS_VOICES = [
   { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', description: 'Warm, friendly female voice' },
   { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', description: 'Professional male voice' },
@@ -86,3 +88,16 @@ export const ELEVENLABS_VOICES = [
   { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', description: 'Energetic female voice' },
   { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', description: 'Calm, authoritative male voice' },
 ];
+
+// Voice from database
+export interface VoiceLibraryEntry {
+  id: string;
+  provider_voice_id: string;
+  name: string;
+  provider: string;
+  accent: string | null;
+  gender: 'male' | 'female' | null;
+  age: string | null;
+  preview_url: string | null;
+  is_active: boolean;
+}
