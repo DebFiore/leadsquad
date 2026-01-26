@@ -1,5 +1,5 @@
 // api/health.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './lib/types.js';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

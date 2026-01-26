@@ -1,5 +1,5 @@
 // api/usage/aggregate.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../lib/types.js';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Verify internal token
-  const token = req.headers['authorization']?.replace('Bearer ', '');
+  const token = req.headers['authorization']?.toString().replace('Bearer ', '');
   if (token !== process.env.INTERNAL_API_TOKEN) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
