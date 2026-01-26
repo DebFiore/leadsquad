@@ -109,40 +109,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    const initAuth = async () => {
+      try {
+        // Set up auth state listener FIRST
+        const { data } = supabase.auth.onAuthStateChange(
+          (event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            
+            // Defer Supabase calls with setTimeout
+            if (session?.user) {
+              setTimeout(() => {
+                fetchProfile(session.user.id);
+                fetchOrganization(session.user.id);
+              }, 0);
+            } else {
+              setProfile(null);
+              setOrganization(null);
+              setOrganizationLoading(false);
+            }
+            setLoading(false);
+          }
+        );
+        subscription = data.subscription;
+
+        // THEN check for existing session
+        const { data: sessionData } = await supabase.auth.getSession();
+        setSession(sessionData.session);
+        setUser(sessionData.session?.user ?? null);
         
-        // Defer Supabase calls with setTimeout
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-            fetchOrganization(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setOrganization(null);
-          setOrganizationLoading(false);
+        if (sessionData.session?.user) {
+          fetchProfile(sessionData.session.user.id);
+          fetchOrganization(sessionData.session.user.id);
         }
         setLoading(false);
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setLoading(false);
+        setOrganizationLoading(false);
       }
-    );
+    };
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchProfile(session.user.id);
-        fetchOrganization(session.user.id);
+    initAuth();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
       }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    };
   }, []);
 
   return (
