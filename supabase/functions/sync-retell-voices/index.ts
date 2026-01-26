@@ -5,6 +5,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// External Supabase instance (LeadSquad production)
+const EXTERNAL_SUPABASE_URL = 'https://gcqqqbeufblpzdcwxoxi.supabase.co';
+
 interface RetellVoice {
   voice_id: string;
   voice_name: string;
@@ -21,7 +24,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    // Use the external Supabase service role key (stored in Lovable Cloud secrets)
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const retellApiKey = Deno.env.get('RETELL_API_KEY');
 
@@ -32,7 +35,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Connect to external LeadSquad Supabase instance
+    const supabase = createClient(EXTERNAL_SUPABASE_URL, supabaseServiceKey);
 
     console.log('[Sync Retell Voices] Fetching voices from Retell API...');
 
