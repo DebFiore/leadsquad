@@ -5,18 +5,24 @@ import { LeadEvent } from '@/types/agents';
 export const adminService = {
   // Check if user is a superadmin
   async isSuperAdmin(userId: string): Promise<boolean> {
+    console.log('[AdminService] Checking superadmin for userId:', userId);
+    
     const { data, error } = await supabase
       .from('superadmins')
       .select('id')
       .eq('id', userId)
       .maybeSingle();
     
+    console.log('[AdminService] Superadmin check result:', { data, error });
+    
     if (error) {
-      console.error('Error checking superadmin status:', error);
+      console.error('[AdminService] Error checking superadmin status:', error);
       return false;
     }
     
-    return !!data;
+    const isAdmin = !!data;
+    console.log('[AdminService] Is superadmin:', isAdmin);
+    return isAdmin;
   },
 
   // Fetch all organizations for admin review
