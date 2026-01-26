@@ -1,10 +1,23 @@
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
+// Safe theme detection that handles blocked localStorage
+const getSafeTheme = (): "light" | "dark" | "system" => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'light' || stored === 'dark') return stored;
+    }
+  } catch {
+    // localStorage blocked
+  }
+  // Default to dark for this app
+  return "dark";
+};
+
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
+  const theme = getSafeTheme();
 
   return (
     <Sonner
