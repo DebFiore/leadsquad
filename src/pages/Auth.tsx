@@ -31,6 +31,10 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  // Detect if we're on the admin subdomain
+  const isAdminPortal = window.location.hostname === 'admin.leadsquad.ai' ||
+    window.location.pathname.startsWith('/admin');
+
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -43,10 +47,10 @@ export default function Auth() {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate('/dashboard');
+        navigate(isAdminPortal ? '/admin' : '/dashboard');
       }
     });
-  }, [navigate]);
+  }, [navigate, isAdminPortal]);
 
   const onSubmit = async (values: AuthFormValues) => {
     setIsLoading(true);
@@ -58,7 +62,7 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Welcome back!');
-        navigate('/dashboard');
+        navigate(isAdminPortal ? '/admin' : '/dashboard');
       } else {
         const redirectUrl = `${window.location.origin}/dashboard`;
         const { error } = await supabase.auth.signUp({
@@ -107,12 +111,14 @@ export default function Auth() {
               className="h-10 mx-auto mb-6"
             />
             <h1 className="text-2xl font-bold text-foreground">
-              {isLogin ? 'Welcome back' : 'Create your account'}
+              {isAdminPortal ? 'Admin Portal' : (isLogin ? 'Welcome back' : 'Create your account')}
             </h1>
             <p className="text-muted-foreground mt-2">
-              {isLogin 
-                ? 'Enter your credentials to access your dashboard' 
-                : 'Start your 14-day free trial today'}
+              {isAdminPortal 
+                ? 'Sign in to access the admin dashboard'
+                : (isLogin 
+                  ? 'Enter your credentials to access your dashboard' 
+                  : 'Start your 14-day free trial today')}
             </p>
           </div>
 
@@ -190,19 +196,22 @@ export default function Auth() {
               </form>
             </Form>
 
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isLogin ? (
-                  <>Don't have an account? <span className="text-primary font-medium">Sign up</span></>
-                ) : (
-                  <>Already have an account? <span className="text-primary font-medium">Sign in</span></>
-                )}
-              </button>
-            </div>
+            {/* Hide signup option on admin portal */}
+            {!isAdminPortal && (
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {isLogin ? (
+                    <>Don't have an account? <span className="text-primary font-medium">Sign up</span></>
+                  ) : (
+                    <>Already have an account? <span className="text-primary font-medium">Sign in</span></>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
