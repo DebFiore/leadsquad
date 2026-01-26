@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Star, Phone } from "lucide-react";
+import { Check, Star, Phone, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
+// Stripe Price IDs - set these in your Stripe Dashboard
+const STRIPE_PRICE_IDS = {
+  starter_monthly: import.meta.env.VITE_STRIPE_STARTER_MONTHLY_PRICE_ID || '',
+  starter_annual: import.meta.env.VITE_STRIPE_STARTER_ANNUAL_PRICE_ID || '',
+  scale_monthly: import.meta.env.VITE_STRIPE_SCALE_MONTHLY_PRICE_ID || '',
+  scale_annual: import.meta.env.VITE_STRIPE_SCALE_ANNUAL_PRICE_ID || '',
+};
 
 const plans = [
   {
@@ -9,6 +18,10 @@ const plans = [
     monthlyPrice: "$197",
     annualPrice: "$150",
     period: "/month",
+    priceId: {
+      monthly: STRIPE_PRICE_IDS.starter_monthly,
+      annual: STRIPE_PRICE_IDS.starter_annual,
+    },
     features: [
       "1 Squad / 3 AI Agents",
       "500 Voice Minutes",
@@ -31,6 +44,10 @@ const plans = [
     monthlyPrice: "$497",
     annualPrice: "$450",
     period: "/month",
+    priceId: {
+      monthly: STRIPE_PRICE_IDS.scale_monthly,
+      annual: STRIPE_PRICE_IDS.scale_annual,
+    },
     features: [
       "Everything in Starter, Plus:",
       "2,000 Voice Minutes",
@@ -64,6 +81,53 @@ const plans = [
 
 const PricingSection = () => {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleCheckout = async (planName: string, priceId: { monthly: string; annual: string }) => {
+    const selectedPriceId = isAnnual ? priceId.annual : priceId.monthly;
+
+    if (!selectedPriceId) {
+      toast.error("Checkout is not configured. Please contact support.");
+      console.error("Missing Stripe Price ID for plan:", planName);
+      return;
+    }
+
+    setLoadingPlan(planName);
+
+    try {
+      const response = await fetch('/api/billing/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId: selectedPriceId,
+          planName: planName,
+          billingPeriod: isAnnual ? 'annual' : 'monthly',
+          successUrl: `${window.location.origin}/dashboard?checkout=success`,
+          cancelUrl: `${window.location.origin}/#pricing`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to start checkout. Please try again.');
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <section id="pricing" className="section-padding bg-background">
@@ -137,21 +201,36 @@ const PricingSection = () => {
               </div>
 
               {/* CTA below price */}
-              <Button
-                variant={plan.popular ? "hero" : "outline"}
-                className="w-full mb-6"
-                size="lg"
-                asChild={plan.isCustom}
-              >
-                {plan.isCustom ? (
+              {plan.isCustom ? (
+                <Button
+                  variant="outline"
+                  className="w-full mb-6"
+                  size="lg"
+                  asChild
+                >
                   <a href="https://calendly.com/mergeai/leadsquad-managed-services" target="_blank" rel="noopener noreferrer">
                     <Phone className="w-4 h-4 mr-2" />
                     {plan.cta}
                   </a>
-                ) : (
-                  plan.cta
-                )}
-              </Button>
+                </Button>
+              ) : (
+                <Button
+                  variant={plan.popular ? "hero" : "outline"}
+                  className="w-full mb-6"
+                  size="lg"
+                  onClick={() => plan.priceId && handleCheckout(plan.name, plan.priceId)}
+                  disabled={loadingPlan === plan.name}
+                >
+                  {loadingPlan === plan.name ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    plan.cta
+                  )}
+                </Button>
+              )}
 
               {/* Features */}
               <ul className="space-y-3 mb-8">
