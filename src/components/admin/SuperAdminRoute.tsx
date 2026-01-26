@@ -13,37 +13,21 @@ export function SuperAdminRoute({ children }: SuperAdminRouteProps) {
   const { user, loading: authLoading } = useAuth();
   const { isSuperAdmin, isCheckingAdmin } = useAdmin();
   const navigate = useNavigate();
-  const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  useEffect(() => {
-    if (authLoading || isCheckingAdmin) return;
-
-    // Not logged in - show login prompt instead of auto-redirect
-    // This prevents redirect loops and allows admin portal users to login
-    if (!user) {
-      setShouldRedirect(true);
-      return;
-    }
-
-    // Logged in but not a superadmin - redirect to dashboard
-    if (!isSuperAdmin) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [user, authLoading, isSuperAdmin, isCheckingAdmin, navigate]);
-
-  if (authLoading || isCheckingAdmin) {
+  // Show loading while checking auth state
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Verifying access...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Not logged in - show login prompt for admin portal
-  if (!user || shouldRedirect) {
+  // Not logged in - always show login prompt for admin portal
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center max-w-md px-4">
@@ -63,13 +47,33 @@ export function SuperAdminRoute({ children }: SuperAdminRouteProps) {
     );
   }
 
-  if (!isSuperAdmin) {
+  // User is logged in - now check admin status
+  if (isCheckingAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Logged in but not a superadmin - show access denied with option to sign out
+  if (!isSuperAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md px-4">
           <ShieldAlert className="h-12 w-12 text-destructive mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-          <p className="text-muted-foreground">You don't have permission to access this area.</p>
+          <p className="text-muted-foreground mb-6">
+            You don't have permission to access this area. Please sign in with an admin account.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" asChild>
+              <Link to="/auth">Sign in as Admin</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );
