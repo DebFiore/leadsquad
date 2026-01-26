@@ -149,4 +149,21 @@ export const adminService = {
 
     return stats;
   },
+
+  // Delete organization (superadmin only)
+  async deleteOrganization(organizationId: string): Promise<void> {
+    console.log('[AdminService] Deleting organization:', organizationId);
+    
+    const { error } = await supabase
+      .from('organizations')
+      .delete()
+      .eq('id', organizationId);
+    
+    if (error) {
+      console.error('[AdminService] Error deleting organization:', error);
+      throw error;
+    }
+    
+    console.log('[AdminService] Organization deleted successfully');
+  },
 };

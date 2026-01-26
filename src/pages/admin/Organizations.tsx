@@ -52,7 +52,7 @@ import {
 } from 'lucide-react';
 import { useAllOrganizations } from '@/hooks/useAdminStats';
 import { useAdmin } from '@/contexts/AdminContext';
-import { supabase } from '@/lib/supabase';
+import { adminService } from '@/services/adminService';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Organization } from '@/types/database';
@@ -91,19 +91,13 @@ function OrganizationsContent() {
     
     setIsDeleting(true);
     try {
-      // Delete organization (cascade will handle related records if configured)
-      const { error } = await supabase
-        .from('organizations')
-        .delete()
-        .eq('id', orgToDelete.id);
-      
-      if (error) throw error;
+      await adminService.deleteOrganization(orgToDelete.id);
       
       toast.success(`${orgToDelete.name} has been deleted`);
       refetch();
     } catch (error: any) {
       console.error('Error deleting organization:', error);
-      toast.error(error.message || 'Failed to delete organization');
+      toast.error(error.message || 'Failed to delete organization. Check RLS policies for superadmin DELETE access.');
     } finally {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
