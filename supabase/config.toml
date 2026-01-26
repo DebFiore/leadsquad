@@ -1,1 +1,52 @@
-project_id = "ywfxxzlzxqvjdjkyxyda"
+project_id = "gcqqqbeufblpzdcwxoxi"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost"
+
+[functions]
+[functions.automation-engine]
+verify_jwt = false
+
+[functions.call-trigger]
+verify_jwt = false
+
+[functions.receive-provider-keys]
+verify_jwt = false
+
+[functions.trigger-deployment]
+verify_jwt = false
+
+[functions.deployment-callback]
+verify_jwt = false
+
+[functions.provider-proxy]
+verify_jwt = false
+
+[functions.deploy-retell-agents]
+verify_jwt = false
+
+[functions.get-retell-usage]
+verify_jwt = false
+
+[functions.sync-retell-resources]
+verify_jwt = false
+
+[functions.sync-retell-voices]
+verify_jwt = false
+
+[functions.test-retell-connection]
+verify_jwt = false
