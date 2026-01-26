@@ -8,11 +8,11 @@ import { toast } from "sonner";
 const PRICE_IDS = {
   starter: {
     monthly: "price_1StrhbE7OFNZIO4SHVnP8kAW",
-    annual: "price_1StrhbE7OFNZIO4SHVnP8kAW", // Update if you have a separate annual price
+    annual: "price_1StrwqE7OFNZIO4SLIj7y2IP",
   },
   scale: {
     monthly: "price_1StriLE7OFNZIO4SwhUVEan0",
-    annual: "price_1StriLE7OFNZIO4SwhUVEan0", // Update if you have a separate annual price
+    annual: "price_1StrxpE7OFNZIO4S2HOs4Eoa",
   },
 };
 
