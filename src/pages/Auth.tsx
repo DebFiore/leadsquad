@@ -41,12 +41,16 @@ export default function Auth() {
   const isAdminPortal = window.location.hostname === 'admin.leadsquad.ai' ||
     window.location.pathname.startsWith('/admin');
 
-  // Default to signup mode when coming from pricing
+  // Default to signup mode when coming from pricing, and store priceId
   useEffect(() => {
     if (isCheckoutFlow && !isAdminPortal) {
       setIsSignUp(true);
+      // Store the priceId for post-onboarding checkout
+      if (priceId) {
+        localStorage.setItem('pendingCheckoutPriceId', priceId);
+      }
     }
-  }, [isCheckoutFlow, isAdminPortal]);
+  }, [isCheckoutFlow, isAdminPortal, priceId]);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
