@@ -1,7 +1,7 @@
 // api/webhooks/vapi.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { verifyVapiSignature, extractOrganizationId } from '../lib/webhookUtils';
+import { verifyVapiSignature, extractOrganizationId } from '../lib/webhookUtils.js';
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,

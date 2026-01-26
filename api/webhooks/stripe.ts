@@ -2,9 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,
@@ -79,6 +77,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const limits = PLAN_LIMITS[priceId] || PLAN_LIMITS['price_starter_monthly'];
           const planName = PRICE_TO_PLAN[priceId] || 'starter';
 
+          const periodStart = (subscription as any).current_period_start;
+          const periodEnd = (subscription as any).current_period_end;
+
           await supabase
             .from('subscriptions')
             .upsert({
@@ -91,8 +92,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               monthly_minutes_limit: limits.minutes,
               monthly_calls_limit: limits.calls,
               monthly_leads_limit: limits.leads,
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              current_period_start: new Date(periodStart * 1000).toISOString(),
+              current_period_end: new Date(periodEnd * 1000).toISOString(),
             });
         }
         break;
@@ -107,6 +108,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const limits = PLAN_LIMITS[priceId] || PLAN_LIMITS['price_starter_monthly'];
           const planName = PRICE_TO_PLAN[priceId] || 'starter';
 
+          const periodStart = (subscription as any).current_period_start;
+          const periodEnd = (subscription as any).current_period_end;
+
           await supabase
             .from('subscriptions')
             .update({
@@ -116,8 +120,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               monthly_minutes_limit: limits.minutes,
               monthly_calls_limit: limits.calls,
               monthly_leads_limit: limits.leads,
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              current_period_start: new Date(periodStart * 1000).toISOString(),
+              current_period_end: new Date(periodEnd * 1000).toISOString(),
               cancel_at: subscription.cancel_at 
                 ? new Date(subscription.cancel_at * 1000).toISOString() 
                 : null,
@@ -145,20 +149,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = (invoice as any).subscription;
         
-        if (invoice.subscription) {
+        if (subscriptionId) {
           await supabase
             .from('subscriptions')
             .update({ status: 'past_due' })
-            .eq('stripe_subscription_id', invoice.subscription as string);
+            .eq('stripe_subscription_id', subscriptionId as string);
         }
         break;
       }
 
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = (invoice as any).subscription;
         
-        if (invoice.subscription) {
+        if (subscriptionId) {
           // Reset usage counters on successful payment (new billing period)
           await supabase
             .from('subscriptions')
@@ -167,7 +173,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               minutes_used_current_cycle: 0,
               calls_used_current_cycle: 0,
             })
-            .eq('stripe_subscription_id', invoice.subscription as string);
+            .eq('stripe_subscription_id', subscriptionId as string);
         }
         break;
       }
