@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.test-retell-connection]
 verify_jwt = false
+
+[functions.send-password-reset]
+verify_jwt = false
