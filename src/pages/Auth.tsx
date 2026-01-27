@@ -117,12 +117,15 @@ export default function Auth() {
     toast.success('Signed out. Please sign in with admin credentials.');
   };
 
+  const [signupComplete, setSignupComplete] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
+
   const onSubmit = async (values: AuthFormValues) => {
     setIsLoading(true);
     try {
       if (isSignUp) {
-        // Sign up flow
-        const redirectUrl = `${window.location.origin}/`;
+        // Sign up flow - redirect to /auth after email verification
+        const redirectUrl = `${window.location.origin}/auth`;
         const { error } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
@@ -131,8 +134,9 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success('Account created! Redirecting to setup...');
-        navigate('/onboarding');
+        // Show email verification message instead of redirecting
+        setSignupEmail(values.email);
+        setSignupComplete(true);
       } else {
         // Sign in flow
         const { error } = await supabase.auth.signInWithPassword({
@@ -154,6 +158,7 @@ export default function Auth() {
         toast.error('Invalid email or password. Please try again.');
       } else if (error.message?.includes('User already registered')) {
         toast.error('This email is already registered. Please sign in instead.');
+        setSignupComplete(false);
         setIsSignUp(false);
       } else {
         toast.error(error.message || 'An error occurred. Please try again.');
@@ -334,6 +339,59 @@ export default function Auth() {
                 </Button>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Email Verification Pending View
+  if (signupComplete) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="p-6">
+          <button 
+            onClick={() => {
+              setSignupComplete(false);
+              setSignupEmail('');
+              form.reset();
+            }}
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to login
+          </button>
+        </header>
+
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="w-full max-w-md text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+              <Mail className="h-8 w-8 text-primary" />
+            </div>
+            
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              Check Your Email
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              We've sent a verification link to <span className="font-medium text-foreground">{signupEmail}</span>. 
+              Click the link in the email to verify your account and continue.
+            </p>
+
+            <div className="bg-card border border-border rounded-xl p-6">
+              <p className="text-sm text-muted-foreground mb-4">
+                Didn't receive the email? Check your spam folder or try again.
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSignupComplete(false);
+                  setIsSignUp(false);
+                }}
+                className="w-full"
+              >
+                Back to Sign In
+              </Button>
+            </div>
           </div>
         </div>
       </div>
