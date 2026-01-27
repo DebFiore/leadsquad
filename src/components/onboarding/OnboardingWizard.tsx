@@ -11,29 +11,65 @@ import { OnboardingStep4 } from './OnboardingStep4';
 import { DeploymentScreen } from './DeploymentScreen';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 import logo from '@/assets/leadsquad-logo-transparent.png';
 
 const STEP_LABELS = ['Business Basics', 'Brand Identity', 'Call Logic', 'Integration'];
 
 export function OnboardingWizard() {
-  const { organization, refreshOrganization } = useAuth();
+  const { user, organization, refreshOrganization } = useAuth();
   const navigate = useNavigate();
   const [intake, setIntake] = useState<ClientIntakeResponse | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [localOrgId, setLocalOrgId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadOrCreateIntake() {
-      if (!organization?.id) return;
+    async function loadOrCreateOrganizationAndIntake() {
+      if (!user?.id) return;
       
       try {
         setIsLoading(true);
-        let existingIntake = await intakeService.getIntakeByOrganization(organization.id);
+        
+        let orgId = organization?.id;
+        
+        // If no organization exists, create one with a placeholder name
+        if (!orgId) {
+          const { data: newOrg, error: orgError } = await supabase
+            .from('organizations')
+            .insert({
+              name: 'My Business', // Placeholder, will be updated in step 1
+              owner_id: user.id,
+              onboarding_completed: false,
+            })
+            .select()
+            .single();
+          
+          if (orgError) throw orgError;
+          
+          // Add the user as an owner in organization_members
+          await supabase
+            .from('organization_members')
+            .insert({
+              organization_id: newOrg.id,
+              user_id: user.id,
+              role: 'owner',
+            });
+          
+          orgId = newOrg.id;
+          setLocalOrgId(orgId);
+          await refreshOrganization();
+        } else {
+          setLocalOrgId(orgId);
+        }
+        
+        // Now load or create intake
+        let existingIntake = await intakeService.getIntakeByOrganization(orgId);
         
         if (!existingIntake) {
-          existingIntake = await intakeService.createIntake(organization.id);
+          existingIntake = await intakeService.createIntake(orgId);
         }
         
         setIntake(existingIntake);
@@ -46,14 +82,25 @@ export function OnboardingWizard() {
       }
     }
 
-    loadOrCreateIntake();
-  }, [organization?.id]);
+    loadOrCreateOrganizationAndIntake();
+  }, [user?.id, organization?.id, refreshOrganization]);
 
   const handleStepComplete = async (stepData: Partial<ClientIntakeResponse>, nextStep: number) => {
     if (!intake?.id) return;
+    const orgId = localOrgId || organization?.id;
 
     try {
       setIsSaving(true);
+      
+      // If completing step 1, update organization name
+      if (nextStep === 2 && stepData.business_name && orgId) {
+        await supabase
+          .from('organizations')
+          .update({ name: stepData.business_name })
+          .eq('id', orgId);
+        await refreshOrganization();
+      }
+      
       const updatedIntake = await intakeService.saveStepProgress(intake.id, stepData, nextStep);
       setIntake(updatedIntake);
       setCurrentStep(nextStep);
@@ -67,7 +114,8 @@ export function OnboardingWizard() {
   };
 
   const handleFinalSubmit = async (stepData: Partial<ClientIntakeResponse>) => {
-    if (!intake?.id || !organization?.id) return;
+    const orgId = localOrgId || organization?.id;
+    if (!intake?.id || !orgId) return;
 
     try {
       setIsCompleting(true);
@@ -79,7 +127,7 @@ export function OnboardingWizard() {
       await intakeService.completeIntake(intake.id);
       
       // Mark organization onboarding as complete
-      await intakeService.markOnboardingComplete(organization.id);
+      await intakeService.markOnboardingComplete(orgId);
       
       // Refresh organization data
       await refreshOrganization();
@@ -114,10 +162,12 @@ export function OnboardingWizard() {
     );
   }
 
-  if (isCompleting && organization?.id) {
+  const currentOrgId = localOrgId || organization?.id;
+
+  if (isCompleting && currentOrgId) {
     return (
       <DeploymentScreen 
-        organizationId={organization.id} 
+        organizationId={currentOrgId} 
         onComplete={handleDeploymentComplete}
       />
     );

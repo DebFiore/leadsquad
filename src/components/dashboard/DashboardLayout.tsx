@@ -1,8 +1,7 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { DashboardSidebar } from './DashboardSidebar';
-import { OnboardingDialog } from './OnboardingDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -13,7 +12,6 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, loading, organization, organizationLoading } = useAuth();
   const navigate = useNavigate();
-  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Detect if we're on the admin subdomain - skip onboarding for admin portal
   const isAdminPortal = window.location.hostname === 'admin.leadsquad.ai' ||
@@ -26,17 +24,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    // Only show onboarding on client portal (not admin portal):
+    // Redirect to full onboarding wizard if:
     // 1. User is logged in
     // 2. Organization loading is complete
-    // 3. No organization exists
+    // 3. No organization exists OR organization hasn't completed onboarding
     // 4. NOT on admin subdomain
-    if (!isAdminPortal && !loading && !organizationLoading && user && organization === null) {
-      setShowOnboarding(true);
-    } else if (organization || isAdminPortal) {
-      setShowOnboarding(false);
+    if (!isAdminPortal && !loading && !organizationLoading && user) {
+      if (organization === null || !organization.onboarding_completed) {
+        navigate('/onboarding', { replace: true });
+      }
     }
-  }, [user, loading, organization, organizationLoading, isAdminPortal]);
+  }, [user, loading, organization, organizationLoading, isAdminPortal, navigate]);
 
   if (loading) {
     return (
@@ -64,10 +62,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </main>
         </SidebarInset>
       </div>
-      <OnboardingDialog 
-        open={showOnboarding} 
-        onComplete={() => setShowOnboarding(false)} 
-      />
     </SidebarProvider>
   );
 }
