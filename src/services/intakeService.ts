@@ -20,18 +20,30 @@ export const intakeService = {
   async createIntake(organizationId: string): Promise<ClientIntakeResponse> {
     console.log('Creating intake for organization:', organizationId);
     
+    // Use the security definer function to bypass RLS timing issues
+    const { data: intakeId, error: rpcError } = await supabase
+      .rpc('create_client_intake', { p_organization_id: organizationId });
+
+    if (rpcError) {
+      console.error('Error creating intake via RPC:', rpcError);
+      throw rpcError;
+    }
+    
+    console.log('Intake created with ID:', intakeId);
+    
+    // Fetch the full intake record
     const { data, error } = await supabase
       .from('client_intake_responses')
-      .insert({ organization_id: organizationId })
-      .select()
+      .select('*')
+      .eq('id', intakeId)
       .single();
 
     if (error) {
-      console.error('Error creating intake:', error);
+      console.error('Error fetching created intake:', error);
       throw error;
     }
     
-    console.log('Intake created successfully:', data);
+    console.log('Intake fetched successfully:', data);
     return data;
   },
 
