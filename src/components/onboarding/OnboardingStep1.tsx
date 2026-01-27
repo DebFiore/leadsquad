@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Building2, MapPin, Clock } from 'lucide-react';
+import { Building2, MapPin } from 'lucide-react';
 import { ClientIntakeResponse } from '@/types/database';
+import { HoursOfOperationInput } from './HoursOfOperationInput';
 
 const schema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
@@ -170,12 +171,11 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
               name="hours_of_operation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    Hours of Operation
-                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Mon-Fri 8am-6pm, Sat 9am-2pm" {...field} />
+                    <HoursOfOperationInput 
+                      value={field.value} 
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

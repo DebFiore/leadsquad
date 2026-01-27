@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { intakeService } from '@/services/intakeService';
@@ -9,6 +9,7 @@ import { OnboardingStep2 } from './OnboardingStep2';
 import { OnboardingStep3 } from './OnboardingStep3';
 import { OnboardingStep4 } from './OnboardingStep4';
 import { DeploymentScreen } from './DeploymentScreen';
+import { WelcomeMessage } from './WelcomeMessage';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -191,37 +192,48 @@ export function OnboardingWizard() {
         />
       </div>
 
+      {/* Welcome Message - Only show on step 1 */}
+      {currentStep === 1 && (
+        <div className="px-4">
+          <WelcomeMessage />
+        </div>
+      )}
+
       {/* Content */}
       <main className="px-4 pb-16">
-        {currentStep === 1 && (
+        {currentStep === 1 && intake && (
           <OnboardingStep1
-            data={intake || {}}
+            key={`step1-${intake.id}`}
+            data={intake}
             onNext={(data) => handleStepComplete(data, 2)}
             isSaving={isSaving}
           />
         )}
 
-        {currentStep === 2 && (
+        {currentStep === 2 && intake && (
           <OnboardingStep2
-            data={intake || {}}
+            key={`step2-${intake.id}`}
+            data={intake}
             onNext={(data) => handleStepComplete(data, 3)}
             onBack={handleBack}
             isSaving={isSaving}
           />
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 3 && intake && (
           <OnboardingStep3
-            data={intake || {}}
+            key={`step3-${intake.id}`}
+            data={intake}
             onNext={(data) => handleStepComplete(data, 4)}
             onBack={handleBack}
             isSaving={isSaving}
           />
         )}
 
-        {currentStep === 4 && (
+        {currentStep === 4 && intake && (
           <OnboardingStep4
-            data={intake || {}}
+            key={`step4-${intake.id}`}
+            data={intake}
             onSubmit={handleFinalSubmit}
             onBack={handleBack}
             isSaving={isSaving}
