@@ -35,6 +35,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Supabase configuration missing' });
     }
 
+    if (!retellApiKey) {
+      return res.status(500).json({ error: 'RETELL_API_KEY is not configured' });
+    }
+
     // Validate user is authenticated and is a superadmin
     const authHeader = req.headers['authorization'];
     const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : '';
@@ -43,18 +47,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Unauthorized - No token provided' });
     }
 
-    // Create client with user's token to verify auth
-    const supabaseAuth = createClient(supabaseUrl, supabaseServiceKey);
+    // Create Supabase client with service role key
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     // Verify the JWT and get user
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
       return res.status(401).json({ error: 'Unauthorized - Invalid token' });
     }
 
     // Check if user is a superadmin
-    const { data: superadmin, error: superadminError } = await supabaseAuth
+    const { data: superadmin, error: superadminError } = await supabase
       .from('superadmins')
       .select('id')
       .eq('id', user.id)
@@ -63,20 +67,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (superadminError || !superadmin) {
       return res.status(403).json({ error: 'Forbidden - Superadmin access required' });
     }
-
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const retellApiKey = process.env.RETELL_API_KEY;
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return res.status(500).json({ error: 'Supabase configuration missing' });
-    }
-
-    if (!retellApiKey) {
-      return res.status(500).json({ error: 'RETELL_API_KEY is not configured' });
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log('[Sync Retell Voices] Fetching voices from Retell API...');
 
