@@ -63,12 +63,6 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-foreground">Tell Us About Your Business</h2>
-          <p className="text-muted-foreground mt-2">
-            This information helps your AI agent represent your business accurately.
-          </p>
-        </div>
 
         <Card>
           <CardHeader>
