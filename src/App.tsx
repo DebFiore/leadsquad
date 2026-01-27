@@ -19,6 +19,7 @@ import Integrations from "./pages/Integrations";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -85,6 +86,7 @@ const App = () => (
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/:slug" element={<BlogPost />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     
                     {/* Onboarding route */}
                     <Route path="/onboarding" element={<Onboarding />} />
