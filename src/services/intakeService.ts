@@ -18,6 +18,8 @@ export const intakeService = {
   },
 
   async createIntake(organizationId: string): Promise<ClientIntakeResponse> {
+    console.log('Creating intake for organization:', organizationId);
+    
     const { data, error } = await supabase
       .from('client_intake_responses')
       .insert({ organization_id: organizationId })
@@ -29,6 +31,7 @@ export const intakeService = {
       throw error;
     }
     
+    console.log('Intake created successfully:', data);
     return data;
   },
 
@@ -36,6 +39,8 @@ export const intakeService = {
     id: string, 
     updates: Partial<Omit<ClientIntakeResponse, 'id' | 'organization_id' | 'created_at' | 'updated_at'>>
   ): Promise<ClientIntakeResponse> {
+    console.log('Updating intake:', { id, updates });
+    
     const { data, error } = await supabase
       .from('client_intake_responses')
       .update(updates)
@@ -48,6 +53,7 @@ export const intakeService = {
       throw error;
     }
     
+    console.log('Intake updated successfully:', data);
     return data;
   },
 

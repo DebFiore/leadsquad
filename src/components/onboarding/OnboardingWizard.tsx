@@ -53,16 +53,24 @@ export function OnboardingWizard() {
             .select()
             .single();
           
-          if (orgError) throw orgError;
+          if (orgError) {
+            console.error('Failed to create organization:', orgError);
+            throw orgError;
+          }
           
           // Add the user as an owner in organization_members
-          await supabase
+          const { error: memberError } = await supabase
             .from('organization_members')
             .insert({
               organization_id: newOrg.id,
               user_id: user.id,
               role: 'owner',
             });
+          
+          if (memberError) {
+            console.error('Failed to create organization member:', memberError);
+            // Non-fatal - continue anyway since owner_id on org is sufficient
+          }
           
           orgId = newOrg.id;
           setLocalOrgId(orgId);
