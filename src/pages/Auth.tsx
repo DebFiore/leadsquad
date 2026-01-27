@@ -167,11 +167,25 @@ export default function Auth() {
     setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/reset-password`;
+      
+      // First, trigger Supabase password reset to generate the token
       const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
         redirectTo: redirectUrl,
       });
 
       if (error) throw error;
+
+      // Send branded email via our edge function
+      const { error: emailError } = await supabase.functions.invoke('send-password-reset', {
+        body: {
+          email: values.email,
+          resetUrl: redirectUrl,
+        },
+      });
+
+      if (emailError) {
+        console.warn('Custom email failed, but Supabase email was sent:', emailError);
+      }
 
       setResetEmailSent(true);
       toast.success('Password reset email sent!');
