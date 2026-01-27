@@ -27,14 +27,19 @@ export function OnboardingWizard() {
   const [isCompleting, setIsCompleting] = useState(false);
   const [localOrgId, setLocalOrgId] = useState<string | null>(null);
 
+  const initializationRef = useRef(false);
+
   useEffect(() => {
     async function loadOrCreateOrganizationAndIntake() {
+      // Prevent re-initialization if already done
+      if (initializationRef.current) return;
       if (!user?.id) return;
       
       try {
         setIsLoading(true);
+        initializationRef.current = true;
         
-        let orgId = organization?.id;
+        let orgId = organization?.id || localOrgId;
         
         // If no organization exists, create one with a placeholder name
         if (!orgId) {
@@ -61,7 +66,7 @@ export function OnboardingWizard() {
           
           orgId = newOrg.id;
           setLocalOrgId(orgId);
-          await refreshOrganization();
+          // Don't call refreshOrganization here - it causes re-renders
         } else {
           setLocalOrgId(orgId);
         }
@@ -78,13 +83,14 @@ export function OnboardingWizard() {
       } catch (error) {
         console.error('Failed to load intake:', error);
         toast.error('Failed to load onboarding data');
+        initializationRef.current = false; // Allow retry on error
       } finally {
         setIsLoading(false);
       }
     }
 
     loadOrCreateOrganizationAndIntake();
-  }, [user?.id, organization?.id, refreshOrganization]);
+  }, [user?.id]); // Remove organization?.id and refreshOrganization from deps
 
   const handleStepComplete = async (stepData: Partial<ClientIntakeResponse>, nextStep: number) => {
     if (!intake?.id) return;
@@ -93,18 +99,24 @@ export function OnboardingWizard() {
     try {
       setIsSaving(true);
       
-      // If completing step 1, update organization name
+      // If completing step 1, update organization name (don't await refreshOrganization)
       if (nextStep === 2 && stepData.business_name && orgId) {
-        await supabase
+        supabase
           .from('organizations')
           .update({ name: stepData.business_name })
-          .eq('id', orgId);
-        await refreshOrganization();
+          .eq('id', orgId)
+          .then(() => {
+            // Refresh org in background, don't block step transition
+            refreshOrganization();
+          });
       }
       
       const updatedIntake = await intakeService.saveStepProgress(intake.id, stepData, nextStep);
+      
+      // Update state atomically
       setIntake(updatedIntake);
       setCurrentStep(nextStep);
+      
       toast.success('Progress saved!');
     } catch (error) {
       console.error('Failed to save progress:', error);
