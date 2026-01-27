@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { intakeService } from '@/services/intakeService';
 import { ClientIntakeResponse } from '@/types/database';
@@ -10,6 +9,7 @@ import { OnboardingStep3 } from './OnboardingStep3';
 import { OnboardingStep4 } from './OnboardingStep4';
 import { DeploymentScreen } from './DeploymentScreen';
 import { WelcomeMessage } from './WelcomeMessage';
+import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -19,7 +19,6 @@ const STEP_LABELS = ['Business Basics', 'Brand Identity', 'Call Logic', 'Integra
 
 export function OnboardingWizard() {
   const { user, organization, refreshOrganization } = useAuth();
-  const navigate = useNavigate();
   const [intake, setIntake] = useState<ClientIntakeResponse | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -196,6 +195,33 @@ export function OnboardingWizard() {
   }
 
   const currentOrgId = localOrgId || organization?.id;
+
+  // If loading is complete but intake is still null, show error with retry
+  if (!intake && !isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md px-4">
+          <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="h-8 w-8 text-destructive" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Setup Error</h2>
+          <p className="text-muted-foreground mb-4">
+            We couldn't load your onboarding data. This might be a temporary issue.
+          </p>
+          <Button 
+            onClick={() => {
+              initializationRef.current = false;
+              setIsLoading(true);
+              // Re-trigger the useEffect by updating a dependency
+              window.location.reload();
+            }}
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isCompleting && currentOrgId) {
     return (
