@@ -27,21 +27,24 @@ export function OnboardingWizard() {
   const [localOrgId, setLocalOrgId] = useState<string | null>(null);
 
   const initializationRef = useRef(false);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadOrCreateOrganizationAndIntake() {
-      // Prevent re-initialization if already done
-      if (initializationRef.current) return;
+      // Prevent re-initialization if already done successfully
+      if (initializationRef.current && intake) return;
       if (!user?.id) return;
       
       try {
         setIsLoading(true);
+        setInitError(null);
         initializationRef.current = true;
         
         let orgId = organization?.id || localOrgId;
         
         // If no organization exists, create one with a placeholder name
         if (!orgId) {
+          console.log('Creating new organization for user:', user.id);
           const { data: newOrg, error: orgError } = await supabase
             .from('organizations')
             .insert({
@@ -54,8 +57,11 @@ export function OnboardingWizard() {
           
           if (orgError) {
             console.error('Failed to create organization:', orgError);
+            setInitError(`Failed to create organization: ${orgError.message}`);
             throw orgError;
           }
+          
+          console.log('Organization created:', newOrg.id);
           
           // Add the user as an owner in organization_members
           const { error: memberError } = await supabase
@@ -73,23 +79,27 @@ export function OnboardingWizard() {
           
           orgId = newOrg.id;
           setLocalOrgId(orgId);
-          // Don't call refreshOrganization here - it causes re-renders
+          // Refresh organization in background
+          refreshOrganization();
         } else {
           setLocalOrgId(orgId);
         }
         
         // Now load or create intake
+        console.log('Loading intake for org:', orgId);
         let existingIntake = await intakeService.getIntakeByOrganization(orgId);
         
         if (!existingIntake) {
+          console.log('Creating new intake for org:', orgId);
           existingIntake = await intakeService.createIntake(orgId);
         }
         
+        console.log('Intake loaded:', existingIntake?.id, 'step:', existingIntake?.current_step);
         setIntake(existingIntake);
         setCurrentStep(existingIntake.current_step || 1);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to load intake:', error);
-        toast.error('Failed to load onboarding data');
+        setInitError(error?.message || 'Failed to load onboarding data');
         initializationRef.current = false; // Allow retry on error
       } finally {
         setIsLoading(false);
@@ -97,7 +107,7 @@ export function OnboardingWizard() {
     }
 
     loadOrCreateOrganizationAndIntake();
-  }, [user?.id]); // Remove organization?.id and refreshOrganization from deps
+  }, [user?.id, organization?.id]); // Re-run when org becomes available
 
   const handleStepComplete = async (stepData: Partial<ClientIntakeResponse>, nextStep: number) => {
     if (!intake?.id) {
@@ -206,14 +216,18 @@ export function OnboardingWizard() {
           </div>
           <h2 className="text-xl font-bold text-foreground mb-2">Setup Error</h2>
           <p className="text-muted-foreground mb-4">
-            We couldn't load your onboarding data. This might be a temporary issue.
+            {initError || "We couldn't load your onboarding data. This might be a temporary issue."}
           </p>
           <Button 
             onClick={() => {
               initializationRef.current = false;
+              setInitError(null);
               setIsLoading(true);
-              // Re-trigger the useEffect by updating a dependency
-              window.location.reload();
+              // Force re-run of the effect
+              setLocalOrgId(null);
+              setTimeout(() => {
+                window.location.reload();
+              }, 100);
             }}
           >
             Try Again
