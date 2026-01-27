@@ -23,12 +23,19 @@ const authSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
 type AuthFormValues = z.infer<typeof authSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -66,6 +73,13 @@ export default function Auth() {
     defaultValues: {
       email: '',
       password: '',
+    },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
     },
   });
 
@@ -149,6 +163,26 @@ export default function Auth() {
     }
   };
 
+  const onForgotPasswordSubmit = async (values: ForgotPasswordFormValues) => {
+    setIsLoading(true);
+    try {
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) throw error;
+
+      setResetEmailSent(true);
+      toast.success('Password reset email sent!');
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      toast.error(error.message || 'Failed to send reset email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Determine header text based on context
   const getHeaderText = () => {
     if (isAdminPortal) return 'Admin Portal';
@@ -174,6 +208,123 @@ export default function Auth() {
 
   // Show signup/signin toggle for payment or checkout flows
   const showToggle = (isPostPaymentFlow || isCheckoutFlow) && !isAdminPortal;
+
+  // Forgot Password View
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="p-6">
+          <button 
+            onClick={() => {
+              setShowForgotPassword(false);
+              setResetEmailSent(false);
+              forgotPasswordForm.reset();
+            }}
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to login
+          </button>
+        </header>
+
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <img 
+                src={logoImage} 
+                alt="LeadSquad" 
+                className="h-10 mx-auto mb-6"
+              />
+              
+              {resetEmailSent ? (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-500" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    Check Your Email
+                  </h1>
+                  <p className="text-muted-foreground mt-2">
+                    We've sent a password reset link to your email address. Click the link to set a new password.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    Forgot Password
+                  </h1>
+                  <p className="text-muted-foreground mt-2">
+                    Enter your email and we'll send you a reset link
+                  </p>
+                </>
+              )}
+            </div>
+
+            {!resetEmailSent && (
+              <div className="bg-card border border-border rounded-xl p-6">
+                <Form {...forgotPasswordForm}>
+                  <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-4">
+                    <FormField
+                      control={forgotPasswordForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input 
+                                placeholder="you@company.com" 
+                                type="email"
+                                className="pl-10 bg-muted"
+                                {...field} 
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button 
+                      type="submit" 
+                      className="w-full mt-2" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        'Send Reset Link'
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+            )}
+
+            {resetEmailSent && (
+              <div className="text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setResetEmailSent(false);
+                    forgotPasswordForm.reset();
+                  }}
+                  className="mt-4"
+                >
+                  Back to Login
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -254,7 +405,18 @@ export default function Auth() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Password</FormLabel>
+                        {!isSignUp && !isAdminPortal && (
+                          <button
+                            type="button"
+                            onClick={() => setShowForgotPassword(true)}
+                            className="text-sm text-primary hover:underline"
+                          >
+                            Forgot password?
+                          </button>
+                        )}
+                      </div>
                       <FormControl>
                         <div className="relative">
                           <Input 
