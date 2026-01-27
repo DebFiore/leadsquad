@@ -101,14 +101,26 @@ export function OnboardingWizard() {
   }, [user?.id]); // Remove organization?.id and refreshOrganization from deps
 
   const handleStepComplete = async (stepData: Partial<ClientIntakeResponse>, nextStep: number) => {
-    if (!intake?.id) return;
+    if (!intake?.id) {
+      console.error('Cannot save: intake is null');
+      toast.error('Unable to save - please refresh the page');
+      return;
+    }
+    
     const orgId = localOrgId || organization?.id;
+    if (!orgId) {
+      console.error('Cannot save: organization ID is null');
+      toast.error('Unable to save - please refresh the page');
+      return;
+    }
 
     try {
       setIsSaving(true);
       
+      console.log('Saving step data:', { intakeId: intake.id, orgId, stepData, nextStep });
+      
       // If completing step 1, update organization name (don't await refreshOrganization)
-      if (nextStep === 2 && stepData.business_name && orgId) {
+      if (nextStep === 2 && stepData.business_name) {
         supabase
           .from('organizations')
           .update({ name: stepData.business_name })
