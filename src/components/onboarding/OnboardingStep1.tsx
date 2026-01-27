@@ -4,23 +4,21 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Building2, MapPin, Clock, Globe, Shield, Award } from 'lucide-react';
+import { Building2, MapPin, Clock } from 'lucide-react';
 import { ClientIntakeResponse } from '@/types/database';
 
 const schema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
   business_address: z.string().optional(),
-  business_website: z.string().optional(),
-  business_hours: z.string().optional(),
-  services: z.string().min(1, 'Please list your services'),
-  geographic_area: z.string().min(1, 'Service area is required'),
-  years_in_business: z.coerce.number().min(0, 'Must be 0 or greater').nullable(),
-  is_licensed_insured: z.boolean(),
-  trust_factors: z.string().optional(),
-  unique_selling_points: z.string().optional(),
+  business_city: z.string().optional(),
+  business_state: z.string().optional(),
+  business_zip: z.string().optional(),
+  hours_of_operation: z.string().optional(),
+  business_coverage: z.string().min(1, 'Service area is required'),
+  business_type: z.string().optional(),
+  services_offered: z.string().min(1, 'Please list your services'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -37,14 +35,13 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
     defaultValues: {
       business_name: data.business_name || '',
       business_address: data.business_address || '',
-      business_website: data.business_website || '',
-      business_hours: data.business_hours || '',
-      services: data.services?.join(', ') || '',
-      geographic_area: data.geographic_area || '',
-      years_in_business: data.years_in_business || null,
-      is_licensed_insured: data.is_licensed_insured || false,
-      trust_factors: data.trust_factors?.join(', ') || '',
-      unique_selling_points: data.unique_selling_points?.join('\n') || '',
+      business_city: data.business_city || '',
+      business_state: data.business_state || '',
+      business_zip: data.business_zip || '',
+      hours_of_operation: data.hours_of_operation || '',
+      business_coverage: data.business_coverage || '',
+      business_type: data.business_type || '',
+      services_offered: data.services_offered || '',
     },
   });
 
@@ -52,14 +49,13 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
     onNext({
       business_name: values.business_name,
       business_address: values.business_address || null,
-      business_website: values.business_website || null,
-      business_hours: values.business_hours || null,
-      services: values.services.split(',').map(s => s.trim()).filter(Boolean),
-      geographic_area: values.geographic_area,
-      years_in_business: values.years_in_business,
-      is_licensed_insured: values.is_licensed_insured,
-      trust_factors: values.trust_factors?.split(',').map(s => s.trim()).filter(Boolean) || [],
-      unique_selling_points: values.unique_selling_points?.split('\n').map(s => s.trim()).filter(Boolean) || [],
+      business_city: values.business_city || null,
+      business_state: values.business_state || null,
+      business_zip: values.business_zip || null,
+      hours_of_operation: values.hours_of_operation || null,
+      business_coverage: values.business_coverage,
+      business_type: values.business_type || null,
+      services_offered: values.services_offered,
     });
   };
 
@@ -95,18 +91,29 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="business_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Type</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Home Services, HVAC Contractor" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="business_website"
+                name="business_address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-1">
-                      <Globe className="h-4 w-4" />
-                      Website
-                    </FormLabel>
+                    <FormLabel>Street Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="www.yoursite.com" {...field} />
+                      <Input placeholder="123 Main St" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -115,15 +122,42 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
 
               <FormField
                 control={form.control}
-                name="business_hours"
+                name="business_city"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      Business Hours
-                    </FormLabel>
+                    <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input placeholder="Mon-Fri 8am-6pm" {...field} />
+                      <Input placeholder="Phoenix" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="business_state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input placeholder="AZ" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="business_zip"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ZIP Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="85001" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,12 +167,15 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
 
             <FormField
               control={form.control}
-              name="business_address"
+              name="hours_of_operation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Address</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    Hours of Operation
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="123 Main St, Phoenix, AZ 85001" {...field} />
+                    <Input placeholder="Mon-Fri 8am-6pm, Sat 9am-2pm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -147,7 +184,7 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
 
             <FormField
               control={form.control}
-              name="services"
+              name="services_offered"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Services Offered *</FormLabel>
@@ -157,82 +194,7 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
                       {...field} 
                     />
                   </FormControl>
-                  <FormDescription>Separated by commas</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="geographic_area"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      Service Area *
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Greater Phoenix Metro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="years_in_business"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-1">
-                      <Award className="h-4 w-4" />
-                      Years in Business
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" min="0" placeholder="15" {...field} value={field.value ?? ''} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Shield className="h-5 w-5 text-primary" />
-              Credentials & Trust Factors
-            </CardTitle>
-            <CardDescription>What makes your business stand out?</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="is_licensed_insured"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-3 space-y-0">
-                  <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                  <FormLabel className="font-normal">We are Licensed & Insured</FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="trust_factors"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Additional Credentials</FormLabel>
-                  <FormControl>
-                    <Input placeholder="BBB A+ Rating, 500+ 5-star reviews" {...field} />
-                  </FormControl>
-                  <FormDescription>Separated by commas</FormDescription>
+                  <FormDescription>Describe your main services</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -240,18 +202,17 @@ export function OnboardingStep1({ data, onNext, isSaving }: Step1Props) {
 
             <FormField
               control={form.control}
-              name="unique_selling_points"
+              name="business_coverage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What Makes You Different? (USPs)</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    Service Area *
+                  </FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="e.g.,&#10;Same-day service guaranteed&#10;Family owned since 1985&#10;Free estimates on all repairs"
-                      className="min-h-[100px]"
-                      {...field} 
-                    />
+                    <Input placeholder="Greater Phoenix Metro Area" {...field} />
                   </FormControl>
-                  <FormDescription>One per line</FormDescription>
+                  <FormDescription>Geographic area you serve</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

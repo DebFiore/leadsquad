@@ -3,21 +3,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ClipboardList, PhoneIncoming, PhoneOutgoing, DollarSign } from 'lucide-react';
+import { ClipboardList, Target, DollarSign } from 'lucide-react';
 import { ClientIntakeResponse } from '@/types/database';
 
 const schema = z.object({
-  info_to_collect: z.array(z.string()).min(1, 'Select at least one'),
-  inbound_goals: z.string().optional(),
-  outbound_goals: z.string().optional(),
-  transfer_protocols: z.string().optional(),
-  pricing_strategy: z.string().min(1, 'Select a pricing strategy'),
-  pricing_details: z.string().optional(),
+  essential_info_to_collect: z.string().min(1, 'Please specify what info to collect'),
+  hot_lead_criteria: z.string().optional(),
+  qualifying_questions: z.string().optional(),
+  escalation_situations: z.string().optional(),
+  pricing_discussion_approach: z.string().min(1, 'Select a pricing approach'),
+  current_promotions: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -29,18 +28,7 @@ interface Step3Props {
   isSaving: boolean;
 }
 
-const infoOptions = [
-  { id: 'name', label: 'Full Name' },
-  { id: 'phone', label: 'Phone' },
-  { id: 'email', label: 'Email' },
-  { id: 'address', label: 'Service Address' },
-  { id: 'issue', label: 'Issue Description' },
-  { id: 'urgency', label: 'Urgency Level' },
-  { id: 'availability', label: 'Availability' },
-  { id: 'referral', label: 'How They Found You' },
-];
-
-const pricingStrategies = [
+const pricingApproaches = [
   { value: 'exact', label: 'Exact Pricing', description: 'Quote specific prices' },
   { value: 'ranges', label: 'Price Ranges', description: 'Provide general ranges' },
   { value: 'quote', label: 'Schedule Quote', description: 'Book for estimate' },
@@ -51,23 +39,23 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      info_to_collect: data.info_to_collect || ['name', 'phone', 'email'],
-      inbound_goals: data.inbound_goals?.join('\n') || '',
-      outbound_goals: data.outbound_goals?.join('\n') || '',
-      transfer_protocols: data.transfer_protocols || '',
-      pricing_strategy: data.pricing_strategy || '',
-      pricing_details: data.pricing_details || '',
+      essential_info_to_collect: data.essential_info_to_collect || '',
+      hot_lead_criteria: data.hot_lead_criteria || '',
+      qualifying_questions: data.qualifying_questions || '',
+      escalation_situations: data.escalation_situations || '',
+      pricing_discussion_approach: data.pricing_discussion_approach || '',
+      current_promotions: data.current_promotions || '',
     },
   });
 
   const onSubmit = (values: FormValues) => {
     onNext({
-      info_to_collect: values.info_to_collect,
-      inbound_goals: values.inbound_goals?.split('\n').map(s => s.trim()).filter(Boolean) || [],
-      outbound_goals: values.outbound_goals?.split('\n').map(s => s.trim()).filter(Boolean) || [],
-      transfer_protocols: values.transfer_protocols || null,
-      pricing_strategy: values.pricing_strategy,
-      pricing_details: values.pricing_details || null,
+      essential_info_to_collect: values.essential_info_to_collect,
+      hot_lead_criteria: values.hot_lead_criteria || null,
+      qualifying_questions: values.qualifying_questions || null,
+      escalation_situations: values.escalation_situations || null,
+      pricing_discussion_approach: values.pricing_discussion_approach,
+      current_promotions: values.current_promotions || null,
     });
   };
 
@@ -77,7 +65,7 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-foreground">Configure Call Logic</h2>
           <p className="text-muted-foreground mt-2">
-            What information should your agent collect and what are your goals?
+            What information should your agent collect and how should they qualify leads?
           </p>
         </div>
 
@@ -91,33 +79,18 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
           <CardContent>
             <FormField
               control={form.control}
-              name="info_to_collect"
-              render={() => (
+              name="essential_info_to_collect"
+              render={({ field }) => (
                 <FormItem>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {infoOptions.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="info_to_collect"
-                        render={({ field }) => (
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item.id])
-                                    : field.onChange(field.value?.filter((v) => v !== item.id))
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">{item.label}</FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
+                  <FormLabel>Essential Info to Collect *</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Full name&#10;Phone number&#10;Email address&#10;Service address&#10;Description of issue&#10;Preferred appointment time"
+                      className="min-h-[120px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>List the key information your agent should gather</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -125,63 +98,72 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <PhoneIncoming className="h-5 w-5 text-green-600" />
-                Inbound Goals
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="inbound_goals"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Book an appointment&#10;Qualify the lead&#10;Answer questions"
-                        className="min-h-[120px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>One goal per line</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Target className="h-5 w-5 text-primary" />
+              Lead Qualification
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="hot_lead_criteria"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hot Lead Criteria</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Ready to book today&#10;Has budget approved&#10;Emergency situation&#10;Decision maker on call"
+                      className="min-h-[100px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>What makes a lead "hot"?</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <PhoneOutgoing className="h-5 w-5 text-blue-600" />
-                Outbound Goals
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="outbound_goals"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Confirm appointments&#10;Follow up on quotes&#10;Collect feedback"
-                        className="min-h-[120px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>One goal per line</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-        </div>
+            <FormField
+              control={form.control}
+              name="qualifying_questions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Qualifying Questions</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Are you the homeowner?&#10;What's your timeline?&#10;Have you gotten other quotes?"
+                      className="min-h-[100px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>Questions to qualify leads</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="escalation_situations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Escalation Situations</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Emergency or safety issue&#10;Angry customer&#10;Complex technical question&#10;Request for manager"
+                      className="min-h-[100px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>When should calls be transferred to a human?</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -193,7 +175,7 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="pricing_strategy"
+              name="pricing_discussion_approach"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -202,7 +184,7 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
                       defaultValue={field.value}
                       className="grid grid-cols-2 gap-3"
                     >
-                      {pricingStrategies.map((s) => (
+                      {pricingApproaches.map((s) => (
                         <div key={s.value}>
                           <RadioGroupItem value={s.value} id={`pricing-${s.value}`} className="peer sr-only" />
                           <Label
@@ -223,38 +205,17 @@ export function OnboardingStep3({ data, onNext, onBack, isSaving }: Step3Props) 
 
             <FormField
               control={form.control}
-              name="pricing_details"
+              name="current_promotions"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pricing Details (if applicable)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Drain cleaning: $99-$199&#10;Service call: $49" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Transfer Protocols</CardTitle>
-            <CardDescription>When should calls be transferred to a human?</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FormField
-              control={form.control}
-              name="transfer_protocols"
-              render={({ field }) => (
-                <FormItem>
+                  <FormLabel>Current Promotions</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Transfer if emergency or safety issue&#10;Transfer to sales for quotes over $5,000"
-                      className="min-h-[100px]"
+                      placeholder="10% off first service&#10;Free estimates&#10;Senior discount available"
                       {...field} 
                     />
                   </FormControl>
+                  <FormDescription>Any active promotions the agent should mention</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

@@ -1,320 +1,204 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Organization, ClientIntakeResponse } from '@/types/database';
-import { LeadEvent } from '@/types/agents';
-import { adminService } from '@/services/adminService';
-import { retellWorkspaceService } from '@/services/retellWorkspaceService';
-import { useAdmin } from '@/contexts/AdminContext';
-import { RetellWorkspace } from '@/types/retell';
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LeadEventsTimeline } from './LeadEventsTimeline';
-import { RetellWorkspaceLink } from './RetellWorkspaceLink';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { 
   Building2, 
-  Globe, 
-  Clock, 
-  MapPin,
-  MessageSquare,
-  Users,
-  Phone,
-  Calendar,
-  Target,
-  Award,
-  FileText,
+  MessageSquare, 
+  Users, 
+  Target, 
   TrendingUp,
-  UserCheck,
-  Loader2,
-  Eye,
-  Activity,
-  Settings2,
+  Calendar,
+  Globe,
+  FileText,
+  DollarSign,
+  Shield
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface IntakeDetailDrawerProps {
-  organization: Organization | null;
+  organizationId: string | null;
+  organizationName: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onOrganizationUpdate: () => void;
 }
 
-interface IntakeSectionProps {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
+interface IntakeData {
+  id: string;
+  organization_id: string;
+  current_step: number;
+  is_complete: boolean;
+  
+  // Business Basics
+  business_name: string | null;
+  business_address: string | null;
+  business_city: string | null;
+  business_state: string | null;
+  business_zip: string | null;
+  hours_of_operation: string | null;
+  business_coverage: string | null;
+  business_type: string | null;
+  services_offered: string | null;
+  
+  // Brand Voice
+  communication_style: string | null;
+  words_to_use: string | null;
+  words_to_avoid: string | null;
+  ideal_customer_tone: string | null;
+  
+  // Customer Understanding
+  customer_problems: string | null;
+  frequent_questions: string | null;
+  common_objections: string | null;
+  caller_decision_stage: string | null;
+  
+  // Lead Qualification
+  essential_info_to_collect: string | null;
+  hot_lead_criteria: string | null;
+  qualifying_questions: string | null;
+  escalation_situations: string | null;
+  
+  // Booking & Scheduling
+  booking_process: string | null;
+  scheduling_window: string | null;
+  appointment_durations: string | null;
+  blackout_dates: string | null;
+  calendar_integration: string | null;
+  
+  // Pricing & Offers
+  pricing_discussion_approach: string | null;
+  current_promotions: string | null;
+  financing_options: string | null;
+  consultation_triggers: string | null;
+  
+  // Competition
+  main_competitors: string | null;
+  differentiators: string | null;
+  unique_selling_propositions: string | null;
+  awards_certifications: string | null;
+  
+  // Objection Handling
+  reasons_people_dont_book: string | null;
+  price_objection_handling: string | null;
+  warranty_guarantee_messaging: string | null;
+  trust_building_elements: string | null;
+  
+  // Goals & Follow-up
+  primary_goal: string | null;
+  followup_process: string | null;
+  lead_notification_recipients: string | null;
+  
+  // Compliance
+  regulatory_requirements: string | null;
+  agent_limitations: string | null;
+  required_disclosures: string | null;
+  
+  // Integration
+  crm_system: string | null;
+  lead_tagging: string | null;
+  booking_system_fields: string | null;
+  other_integrations: string | null;
+  
+  created_at: string;
+  updated_at: string;
 }
 
-function IntakeSection({ title, icon, children }: IntakeSectionProps) {
+function DataField({ label, value }: { label: string; value: string | number | boolean | null | undefined }) {
+  if (value === null || value === undefined || value === '') return null;
+  
+  const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
+  
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-sm whitespace-pre-wrap">{displayValue}</p>
+    </div>
+  );
+}
+
+function IntakeSection({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-primary">
+      <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
         {icon}
-        <h4 className="font-semibold">{title}</h4>
-      </div>
-      <div className="pl-6 space-y-2 text-sm">
+        {title}
+      </h3>
+      <div className="grid grid-cols-1 gap-4 pl-6">
         {children}
       </div>
     </div>
   );
 }
 
-function DataField({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div>
-      <span className="text-muted-foreground">{label}:</span>{' '}
-      <span className="text-foreground">{value || '—'}</span>
-    </div>
-  );
-}
-
-function ArrayField({ label, items }: { label: string; items: string[] | null }) {
-  if (!items || items.length === 0) {
-    return <DataField label={label} value="—" />;
-  }
-  return (
-    <div>
-      <span className="text-muted-foreground">{label}:</span>
-      <ul className="list-disc list-inside ml-2 mt-1">
-        {items.map((item, i) => (
-          <li key={i} className="text-foreground">{item}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export function IntakeDetailDrawer({ 
-  organization, 
-  open, 
-  onOpenChange,
-  onOrganizationUpdate,
-}: IntakeDetailDrawerProps) {
-  const navigate = useNavigate();
-  const { setImpersonatedOrg } = useAdmin();
-  const [intake, setIntake] = useState<ClientIntakeResponse | null>(null);
-  const [events, setEvents] = useState<LeadEvent[]>([]);
-  const [eventStats, setEventStats] = useState<Record<string, number>>({});
-  const [workspace, setWorkspace] = useState<RetellWorkspace | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [status, setStatus] = useState<Organization['status']>('pending');
-  const [isActive, setIsActive] = useState(false);
+export function IntakeDetailDrawer({ organizationId, organizationName, open, onOpenChange }: IntakeDetailDrawerProps) {
+  const [intake, setIntake] = useState<IntakeData | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (organization && open) {
-      setStatus(organization.status || 'pending');
-      setIsActive(organization.is_active ?? true);
-      loadData(organization.id);
+    async function fetchIntake() {
+      if (!organizationId || !open) return;
+      
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('client_intake_responses')
+          .select('*')
+          .eq('organization_id', organizationId)
+          .maybeSingle();
+        
+        if (error) throw error;
+        setIntake(data);
+      } catch (error) {
+        console.error('Failed to fetch intake:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [organization, open]);
 
-  const loadData = async (orgId: string) => {
-    setIsLoading(true);
-    try {
-      const [intakeData, eventsData, statsData, workspaceData] = await Promise.all([
-        adminService.getIntakeByOrganization(orgId),
-        adminService.getLeadEventsByOrganization(orgId),
-        adminService.getEventStats(orgId),
-        retellWorkspaceService.getWorkspace(orgId).catch(() => null),
-      ]);
-      setIntake(intakeData);
-      setEvents(eventsData);
-      setEventStats(statsData);
-      setWorkspace(workspaceData);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleWorkspaceLinked = () => {
-    if (organization) {
-      loadData(organization.id);
-    }
-  };
-
-  const handleStatusChange = async (newStatus: Organization['status']) => {
-    if (!organization) return;
-    setIsSaving(true);
-    try {
-      await adminService.updateOrganizationStatus(organization.id, newStatus);
-      setStatus(newStatus);
-      toast.success('Status updated');
-      onOrganizationUpdate();
-    } catch (error) {
-      toast.error('Failed to update status');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleActiveToggle = async (checked: boolean) => {
-    if (!organization) return;
-    setIsSaving(true);
-    try {
-      await adminService.toggleOrganizationActive(organization.id, checked);
-      setIsActive(checked);
-      toast.success(checked ? 'Organization activated' : 'Organization deactivated');
-      onOrganizationUpdate();
-    } catch (error) {
-      toast.error('Failed to toggle active state');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleImpersonate = () => {
-    if (!organization) return;
-    setImpersonatedOrg(organization);
-    onOpenChange(false);
-    navigate('/dashboard');
-  };
-
-  if (!organization) return null;
+    fetchIntake();
+  }, [organizationId, open]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-hidden flex flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            {organization.name}
+            <FileText className="h-5 w-5" />
+            {organizationName} - Intake Details
           </SheetTitle>
-          <SheetDescription>
-            Review intake data and manage organization settings
-          </SheetDescription>
+          {intake && (
+            <div className="flex items-center gap-2">
+              <Badge variant={intake.is_complete ? 'default' : 'secondary'}>
+                {intake.is_complete ? 'Complete' : `Step ${intake.current_step}/4`}
+              </Badge>
+            </div>
+          )}
         </SheetHeader>
 
-        {/* Admin Actions */}
-        <div className="space-y-4 py-4 border-b">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>Status</Label>
-              <p className="text-xs text-muted-foreground">Set the organization's approval status</p>
-            </div>
-            <Select 
-              value={status} 
-              onValueChange={(v) => handleStatusChange(v as Organization['status'])}
-              disabled={isSaving}
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="flagged">Flagged</SelectItem>
-                <SelectItem value="needs_clarification">Needs Clarification</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>Active</Label>
-              <p className="text-xs text-muted-foreground">Toggle if this organization can use the platform</p>
-            </div>
-            <Switch
-              checked={isActive}
-              onCheckedChange={handleActiveToggle}
-              disabled={isSaving}
-            />
-          </div>
-
-          <Button 
-            onClick={handleImpersonate} 
-            variant="outline" 
-            className="w-full"
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            Impersonate Client
-          </Button>
-        </div>
-
-        {/* Tabs for Intake and Events */}
-        <Tabs defaultValue="workspace" className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="workspace" className="flex items-center gap-2">
-              <Settings2 className="h-4 w-4" />
-              Workspace
-            </TabsTrigger>
-            <TabsTrigger value="events" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Events ({eventStats.total || 0})
-            </TabsTrigger>
-            <TabsTrigger value="intake">
-              <FileText className="h-4 w-4 mr-2" />
-              Intake
-            </TabsTrigger>
+        <Tabs defaultValue="intake" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="intake">Intake Data</TabsTrigger>
+            <TabsTrigger value="raw">Raw JSON</TabsTrigger>
           </TabsList>
 
-          {/* Workspace Tab */}
-          <TabsContent value="workspace" className="flex-1 mt-4 overflow-auto">
-            <div className="space-y-4">
-              <RetellWorkspaceLink
-                organizationId={organization.id}
-                organizationName={organization.name}
-                existingWorkspaceId={workspace?.workspace_id}
-                existingApiKey={workspace?.api_key}
-                isConnected={workspace?.is_connected || false}
-                onLinked={handleWorkspaceLinked}
-              />
-              
-              {workspace?.last_synced_at && (
-                <div className="text-xs text-muted-foreground text-center">
-                  Last synced: {new Date(workspace.last_synced_at).toLocaleString()}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="events" className="flex-1 mt-4">
-            <div className="grid grid-cols-4 gap-2 mb-4">
-              <div className="text-center p-2 rounded bg-muted/50">
-                <div className="text-lg font-bold text-sky-400">{eventStats.sms_sent || 0}</div>
-                <div className="text-xs text-muted-foreground">SMS Sent</div>
-              </div>
-              <div className="text-center p-2 rounded bg-muted/50">
-                <div className="text-lg font-bold text-amber-400">{eventStats.call_attempted || 0}</div>
-                <div className="text-xs text-muted-foreground">Calls</div>
-              </div>
-              <div className="text-center p-2 rounded bg-muted/50">
-                <div className="text-lg font-bold text-green-400">{eventStats.call_completed || 0}</div>
-                <div className="text-xs text-muted-foreground">Completed</div>
-              </div>
-              <div className="text-center p-2 rounded bg-muted/50">
-                <div className="text-lg font-bold text-primary">{eventStats.appointment_set || 0}</div>
-                <div className="text-xs text-muted-foreground">Appts</div>
-              </div>
-            </div>
-            <LeadEventsTimeline events={events} isLoading={isLoading} />
+          <TabsContent value="raw" className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <pre className="text-xs bg-muted p-4 rounded-lg overflow-x-auto">
+                {JSON.stringify(intake, null, 2)}
+              </pre>
+            </ScrollArea>
           </TabsContent>
 
           <TabsContent value="intake" className="flex-1 overflow-hidden">
-            <ScrollArea className="h-[400px] -mx-6 px-6">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <ScrollArea className="h-full">
+        {loading ? (
+          <div className="space-y-4 py-4">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
           </div>
         ) : !intake ? (
           <div className="text-center py-12 text-muted-foreground">
@@ -327,13 +211,14 @@ export function IntakeDetailDrawer({
               {/* Section 1: Business Basics */}
               <IntakeSection title="Business Basics" icon={<Building2 className="h-4 w-4" />}>
                 <DataField label="Business Name" value={intake.business_name} />
+                <DataField label="Business Type" value={intake.business_type} />
                 <DataField label="Address" value={intake.business_address} />
-                <DataField label="Website" value={intake.business_website} />
-                <DataField label="Hours" value={intake.business_hours} />
-                <ArrayField label="Services" items={intake.services} />
-                <DataField label="Geographic Area" value={intake.geographic_area} />
-                <DataField label="Years in Business" value={intake.years_in_business} />
-                <DataField label="Licensed & Insured" value={intake.is_licensed_insured ? 'Yes' : 'No'} />
+                <DataField label="City" value={intake.business_city} />
+                <DataField label="State" value={intake.business_state} />
+                <DataField label="ZIP" value={intake.business_zip} />
+                <DataField label="Hours" value={intake.hours_of_operation} />
+                <DataField label="Services" value={intake.services_offered} />
+                <DataField label="Coverage Area" value={intake.business_coverage} />
               </IntakeSection>
 
               <Separator />
@@ -341,105 +226,98 @@ export function IntakeDetailDrawer({
               {/* Section 2: Brand Voice */}
               <IntakeSection title="Brand Voice" icon={<MessageSquare className="h-4 w-4" />}>
                 <DataField label="Communication Style" value={intake.communication_style} />
-                <DataField label="Intro Sentence" value={intake.intro_sentence} />
-                <ArrayField label="Phrases to Use" items={intake.phrases_to_use} />
-                <ArrayField label="Phrases to Avoid" items={intake.phrases_to_avoid} />
+                <DataField label="Ideal Customer Tone" value={intake.ideal_customer_tone} />
+                <DataField label="Words to Use" value={intake.words_to_use} />
+                <DataField label="Words to Avoid" value={intake.words_to_avoid} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 3: Customer Questions */}
-              <IntakeSection title="Customer Questions & Objections" icon={<Users className="h-4 w-4" />}>
-                <ArrayField label="Top Questions" items={intake.top_customer_questions} />
-                <ArrayField label="Common Objections" items={intake.common_objections} />
+              {/* Section 3: Customer Understanding */}
+              <IntakeSection title="Customer Understanding" icon={<Users className="h-4 w-4" />}>
+                <DataField label="Customer Problems" value={intake.customer_problems} />
+                <DataField label="Frequent Questions" value={intake.frequent_questions} />
+                <DataField label="Common Objections" value={intake.common_objections} />
+                <DataField label="Caller Decision Stage" value={intake.caller_decision_stage} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 4: Call Flow */}
-              <IntakeSection title="Call Flow" icon={<Phone className="h-4 w-4" />}>
-                <ArrayField label="Info to Collect" items={intake.info_to_collect} />
-                <DataField label="Transfer Protocols" value={intake.transfer_protocols} />
-                <DataField label="Pricing Strategy" value={intake.pricing_strategy} />
-                <DataField label="Pricing Details" value={intake.pricing_details} />
+              {/* Section 4: Lead Qualification */}
+              <IntakeSection title="Lead Qualification" icon={<Target className="h-4 w-4" />}>
+                <DataField label="Essential Info to Collect" value={intake.essential_info_to_collect} />
+                <DataField label="Hot Lead Criteria" value={intake.hot_lead_criteria} />
+                <DataField label="Qualifying Questions" value={intake.qualifying_questions} />
+                <DataField label="Escalation Situations" value={intake.escalation_situations} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 5: Ideal Customer */}
-              <IntakeSection title="Ideal Customer Profile" icon={<UserCheck className="h-4 w-4" />}>
-                <DataField label="Description" value={intake.ideal_customer_description} />
-                <ArrayField label="Pain Points" items={intake.customer_pain_points} />
+              {/* Section 5: Booking & Scheduling */}
+              <IntakeSection title="Booking & Scheduling" icon={<Calendar className="h-4 w-4" />}>
+                <DataField label="Booking Process" value={intake.booking_process} />
+                <DataField label="Scheduling Window" value={intake.scheduling_window} />
+                <DataField label="Appointment Durations" value={intake.appointment_durations} />
+                <DataField label="Blackout Dates" value={intake.blackout_dates} />
+                <DataField label="Calendar Integration" value={intake.calendar_integration} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 6: Competition */}
-              <IntakeSection title="Competitive Landscape" icon={<Target className="h-4 w-4" />}>
-                <ArrayField label="Main Competitors" items={intake.main_competitors} />
-                <ArrayField label="Competitive Advantages" items={intake.competitive_advantages} />
+              {/* Section 6: Pricing & Offers */}
+              <IntakeSection title="Pricing & Offers" icon={<DollarSign className="h-4 w-4" />}>
+                <DataField label="Pricing Approach" value={intake.pricing_discussion_approach} />
+                <DataField label="Current Promotions" value={intake.current_promotions} />
+                <DataField label="Financing Options" value={intake.financing_options} />
+                <DataField label="Consultation Triggers" value={intake.consultation_triggers} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 7: USPs */}
-              <IntakeSection title="USPs & Credentials" icon={<Award className="h-4 w-4" />}>
-                <ArrayField label="Unique Selling Points" items={intake.unique_selling_points} />
-                <ArrayField label="Trust Factors" items={intake.trust_factors} />
+              {/* Section 7: Competition */}
+              <IntakeSection title="Competition & Differentiation" icon={<TrendingUp className="h-4 w-4" />}>
+                <DataField label="Main Competitors" value={intake.main_competitors} />
+                <DataField label="Differentiators" value={intake.differentiators} />
+                <DataField label="USPs" value={intake.unique_selling_propositions} />
+                <DataField label="Awards & Certifications" value={intake.awards_certifications} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 8: Lead Qualification */}
-              <IntakeSection title="Lead Qualification" icon={<TrendingUp className="h-4 w-4" />}>
-                <ArrayField label="Qualification Criteria" items={intake.qualification_criteria} />
-                <ArrayField label="Disqualification Criteria" items={intake.disqualification_criteria} />
-                <DataField label="Scoring Notes" value={intake.lead_scoring_notes} />
+              {/* Section 8: Objection Handling */}
+              <IntakeSection title="Objection Handling" icon={<Shield className="h-4 w-4" />}>
+                <DataField label="Reasons People Don't Book" value={intake.reasons_people_dont_book} />
+                <DataField label="Price Objection Handling" value={intake.price_objection_handling} />
+                <DataField label="Warranty/Guarantee Messaging" value={intake.warranty_guarantee_messaging} />
+                <DataField label="Trust Building Elements" value={intake.trust_building_elements} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 9: Goals */}
-              <IntakeSection title="Inbound & Outbound Goals" icon={<Target className="h-4 w-4" />}>
-                <ArrayField label="Inbound Goals" items={intake.inbound_goals} />
-                <ArrayField label="Outbound Goals" items={intake.outbound_goals} />
+              {/* Section 9: Goals & Follow-up */}
+              <IntakeSection title="Goals & Follow-up" icon={<Target className="h-4 w-4" />}>
+                <DataField label="Primary Goal" value={intake.primary_goal} />
+                <DataField label="Follow-up Process" value={intake.followup_process} />
+                <DataField label="Lead Notification Recipients" value={intake.lead_notification_recipients} />
               </IntakeSection>
 
               <Separator />
 
-              {/* Section 10: Appointments */}
-              <IntakeSection title="Appointment Setting" icon={<Calendar className="h-4 w-4" />}>
-                <ArrayField label="Appointment Types" items={intake.appointment_types} />
-                <DataField label="Duration" value={intake.appointment_duration} />
-                <DataField label="Buffer Time" value={intake.appointment_buffer} />
+              {/* Section 10: Compliance */}
+              <IntakeSection title="Compliance & Limitations" icon={<Shield className="h-4 w-4" />}>
+                <DataField label="Regulatory Requirements" value={intake.regulatory_requirements} />
+                <DataField label="Agent Limitations" value={intake.agent_limitations} />
+                <DataField label="Required Disclosures" value={intake.required_disclosures} />
               </IntakeSection>
 
               <Separator />
 
               {/* Section 11: Integration */}
-              <IntakeSection title="CRM & Calendar" icon={<Globe className="h-4 w-4" />}>
-                <DataField label="Booking Process" value={intake.booking_process} />
-                <ArrayField label="Calendar Systems" items={intake.calendar_systems} />
+              <IntakeSection title="CRM & Integration" icon={<Globe className="h-4 w-4" />}>
                 <DataField label="CRM System" value={intake.crm_system} />
-                <DataField label="CRM Notes" value={intake.crm_integration_notes} />
-              </IntakeSection>
-
-              <Separator />
-
-              {/* Section 12: Follow-up */}
-              <IntakeSection title="Follow-up Protocols" icon={<Clock className="h-4 w-4" />}>
-                <DataField label="Timing" value={intake.followup_timing} />
-                <ArrayField label="Channels" items={intake.followup_channels} />
-                <DataField label="Sequence" value={intake.followup_sequence} />
-              </IntakeSection>
-
-              <Separator />
-
-              {/* Section 13: KPIs */}
-              <IntakeSection title="Reporting & KPIs" icon={<TrendingUp className="h-4 w-4" />}>
-                <ArrayField label="Key Metrics" items={intake.key_metrics} />
-                <DataField label="Reporting Frequency" value={intake.reporting_frequency} />
-                <DataField label="Success Criteria" value={intake.success_criteria} />
+                <DataField label="Lead Tagging" value={intake.lead_tagging} />
+                <DataField label="Booking System Fields" value={intake.booking_system_fields} />
+                <DataField label="Other Integrations" value={intake.other_integrations} />
               </IntakeSection>
           </div>
         )}

@@ -12,9 +12,9 @@ import { ClientIntakeResponse } from '@/types/database';
 
 const schema = z.object({
   communication_style: z.string().min(1, 'Please select a communication style'),
-  intro_sentence: z.string().min(1, 'Intro sentence is required'),
-  phrases_to_use: z.string().optional(),
-  phrases_to_avoid: z.string().optional(),
+  words_to_use: z.string().optional(),
+  words_to_avoid: z.string().optional(),
+  ideal_customer_tone: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -39,18 +39,18 @@ export function Step2PersonaTone({ data, onNext, onBack, isSaving }: Step2Props)
     resolver: zodResolver(schema),
     defaultValues: {
       communication_style: data.communication_style || '',
-      intro_sentence: data.intro_sentence || '',
-      phrases_to_use: data.phrases_to_use?.join('\n') || '',
-      phrases_to_avoid: data.phrases_to_avoid?.join('\n') || '',
+      words_to_use: data.words_to_use || '',
+      words_to_avoid: data.words_to_avoid || '',
+      ideal_customer_tone: data.ideal_customer_tone || '',
     },
   });
 
   const onSubmit = (values: FormValues) => {
     onNext({
       communication_style: values.communication_style,
-      intro_sentence: values.intro_sentence,
-      phrases_to_use: values.phrases_to_use?.split('\n').map(s => s.trim()).filter(Boolean) || [],
-      phrases_to_avoid: values.phrases_to_avoid?.split('\n').map(s => s.trim()).filter(Boolean) || [],
+      words_to_use: values.words_to_use || null,
+      words_to_avoid: values.words_to_avoid || null,
+      ideal_customer_tone: values.ideal_customer_tone || null,
     });
   };
 
@@ -110,29 +110,26 @@ export function Step2PersonaTone({ data, onNext, onBack, isSaving }: Step2Props)
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Opening Line
+              Brand Language
             </CardTitle>
             <CardDescription>
-              How should your agent introduce themselves when answering calls?
+              Define the tone and phrases for your brand
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="intro_sentence"
+              name="ideal_customer_tone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Intro Sentence *</FormLabel>
+                  <FormLabel>Ideal Customer Tone</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="e.g., Thank you for calling Smith Plumbing, this is Alex. How can I help you today?"
+                      placeholder="Describe how you want the agent to sound when speaking with your ideal customer..."
                       className="min-h-[80px]"
                       {...field} 
                     />
                   </FormControl>
-                  <FormDescription>
-                    This is the first thing customers will hear
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -145,7 +142,7 @@ export function Step2PersonaTone({ data, onNext, onBack, isSaving }: Step2Props)
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-600">
                 <Sparkles className="h-5 w-5" />
-                Phrases to Use
+                Words to Use
               </CardTitle>
               <CardDescription>
                 Specific phrases your brand prefers
@@ -154,18 +151,18 @@ export function Step2PersonaTone({ data, onNext, onBack, isSaving }: Step2Props)
             <CardContent>
               <FormField
                 control={form.control}
-                name="phrases_to_use"
+                name="words_to_use"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Textarea 
-                        placeholder="e.g.,&#10;We'd be happy to help with that&#10;Let me get you scheduled&#10;That's a great question"
+                        placeholder="e.g., We'd be happy to help with that&#10;Let me get you scheduled&#10;That's a great question"
                         className="min-h-[120px]"
                         {...field} 
                       />
                     </FormControl>
                     <FormDescription>
-                      One phrase per line
+                      Key phrases your brand uses
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -178,7 +175,7 @@ export function Step2PersonaTone({ data, onNext, onBack, isSaving }: Step2Props)
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-destructive">
                 <Ban className="h-5 w-5" />
-                Phrases to Avoid
+                Words to Avoid
               </CardTitle>
               <CardDescription>
                 Words or phrases that don't fit your brand
@@ -187,18 +184,18 @@ export function Step2PersonaTone({ data, onNext, onBack, isSaving }: Step2Props)
             <CardContent>
               <FormField
                 control={form.control}
-                name="phrases_to_avoid"
+                name="words_to_avoid"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Textarea 
-                        placeholder="e.g.,&#10;No problem&#10;I don't know&#10;That's not my department"
+                        placeholder="e.g., No problem&#10;I don't know&#10;That's not my department"
                         className="min-h-[120px]"
                         {...field} 
                       />
                     </FormControl>
                     <FormDescription>
-                      One phrase per line
+                      Words that don't fit your brand
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
