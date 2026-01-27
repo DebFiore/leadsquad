@@ -14,7 +14,280 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      client_intake_responses: {
+        Row: {
+          agent_limitations: string | null
+          appointment_durations: string | null
+          awards_certifications: string | null
+          blackout_dates: string | null
+          booking_process: string | null
+          booking_system_fields: string | null
+          business_address: string | null
+          business_city: string | null
+          business_coverage: string | null
+          business_name: string | null
+          business_state: string | null
+          business_type: string | null
+          business_zip: string | null
+          calendar_integration: string | null
+          caller_decision_stage: string | null
+          common_objections: string | null
+          communication_style: string | null
+          consultation_triggers: string | null
+          created_at: string
+          crm_system: string | null
+          current_promotions: string | null
+          current_step: number
+          customer_problems: string | null
+          differentiators: string | null
+          escalation_situations: string | null
+          essential_info_to_collect: string | null
+          financing_options: string | null
+          followup_process: string | null
+          frequent_questions: string | null
+          hot_lead_criteria: string | null
+          hours_of_operation: string | null
+          id: string
+          ideal_customer_tone: string | null
+          is_complete: boolean
+          lead_notification_recipients: string | null
+          lead_tagging: string | null
+          main_competitors: string | null
+          organization_id: string
+          other_integrations: string | null
+          price_objection_handling: string | null
+          pricing_discussion_approach: string | null
+          primary_goal: string | null
+          qualifying_questions: string | null
+          reasons_people_dont_book: string | null
+          regulatory_requirements: string | null
+          required_disclosures: string | null
+          scheduling_window: string | null
+          services_offered: string | null
+          trust_building_elements: string | null
+          unique_selling_propositions: string | null
+          updated_at: string
+          warranty_guarantee_messaging: string | null
+          words_to_avoid: string | null
+          words_to_use: string | null
+        }
+        Insert: {
+          agent_limitations?: string | null
+          appointment_durations?: string | null
+          awards_certifications?: string | null
+          blackout_dates?: string | null
+          booking_process?: string | null
+          booking_system_fields?: string | null
+          business_address?: string | null
+          business_city?: string | null
+          business_coverage?: string | null
+          business_name?: string | null
+          business_state?: string | null
+          business_type?: string | null
+          business_zip?: string | null
+          calendar_integration?: string | null
+          caller_decision_stage?: string | null
+          common_objections?: string | null
+          communication_style?: string | null
+          consultation_triggers?: string | null
+          created_at?: string
+          crm_system?: string | null
+          current_promotions?: string | null
+          current_step?: number
+          customer_problems?: string | null
+          differentiators?: string | null
+          escalation_situations?: string | null
+          essential_info_to_collect?: string | null
+          financing_options?: string | null
+          followup_process?: string | null
+          frequent_questions?: string | null
+          hot_lead_criteria?: string | null
+          hours_of_operation?: string | null
+          id?: string
+          ideal_customer_tone?: string | null
+          is_complete?: boolean
+          lead_notification_recipients?: string | null
+          lead_tagging?: string | null
+          main_competitors?: string | null
+          organization_id: string
+          other_integrations?: string | null
+          price_objection_handling?: string | null
+          pricing_discussion_approach?: string | null
+          primary_goal?: string | null
+          qualifying_questions?: string | null
+          reasons_people_dont_book?: string | null
+          regulatory_requirements?: string | null
+          required_disclosures?: string | null
+          scheduling_window?: string | null
+          services_offered?: string | null
+          trust_building_elements?: string | null
+          unique_selling_propositions?: string | null
+          updated_at?: string
+          warranty_guarantee_messaging?: string | null
+          words_to_avoid?: string | null
+          words_to_use?: string | null
+        }
+        Update: {
+          agent_limitations?: string | null
+          appointment_durations?: string | null
+          awards_certifications?: string | null
+          blackout_dates?: string | null
+          booking_process?: string | null
+          booking_system_fields?: string | null
+          business_address?: string | null
+          business_city?: string | null
+          business_coverage?: string | null
+          business_name?: string | null
+          business_state?: string | null
+          business_type?: string | null
+          business_zip?: string | null
+          calendar_integration?: string | null
+          caller_decision_stage?: string | null
+          common_objections?: string | null
+          communication_style?: string | null
+          consultation_triggers?: string | null
+          created_at?: string
+          crm_system?: string | null
+          current_promotions?: string | null
+          current_step?: number
+          customer_problems?: string | null
+          differentiators?: string | null
+          escalation_situations?: string | null
+          essential_info_to_collect?: string | null
+          financing_options?: string | null
+          followup_process?: string | null
+          frequent_questions?: string | null
+          hot_lead_criteria?: string | null
+          hours_of_operation?: string | null
+          id?: string
+          ideal_customer_tone?: string | null
+          is_complete?: boolean
+          lead_notification_recipients?: string | null
+          lead_tagging?: string | null
+          main_competitors?: string | null
+          organization_id?: string
+          other_integrations?: string | null
+          price_objection_handling?: string | null
+          pricing_discussion_approach?: string | null
+          primary_goal?: string | null
+          qualifying_questions?: string | null
+          reasons_people_dont_book?: string | null
+          regulatory_requirements?: string | null
+          required_disclosures?: string | null
+          scheduling_window?: string | null
+          services_offered?: string | null
+          trust_building_elements?: string | null
+          unique_selling_propositions?: string | null
+          updated_at?: string
+          warranty_guarantee_messaging?: string | null
+          words_to_avoid?: string | null
+          words_to_use?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_intake_responses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          industry: string | null
+          is_active: boolean
+          name: string
+          onboarding_completed: boolean
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          industry?: string | null
+          is_active?: boolean
+          name: string
+          onboarding_completed?: boolean
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          industry?: string | null
+          is_active?: boolean
+          name?: string
+          onboarding_completed?: boolean
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

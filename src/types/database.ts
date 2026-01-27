@@ -38,69 +38,75 @@ export interface ClientIntakeResponse {
   id: string;
   organization_id: string;
   
-  // Step 1: Business Basics (Section 1 & 7)
+  // Step 1: Business Basics
   business_name: string | null;
   business_address: string | null;
-  business_website: string | null;
-  business_hours: string | null;
-  services: string[] | null;
-  geographic_area: string | null;
-  years_in_business: number | null;
-  is_licensed_insured: boolean;
-  trust_factors: string[] | null;
-  unique_selling_points: string[] | null;
+  business_city: string | null;
+  business_state: string | null;
+  business_zip: string | null;
+  hours_of_operation: string | null;
+  business_coverage: string | null;
+  business_type: string | null;
+  services_offered: string | null;
   
-  // Step 2: Brand Identity (Section 2 & 3)
+  // Step 2: Brand Voice & Communication
   communication_style: string | null;
-  intro_sentence: string | null;
-  phrases_to_use: string[] | null;
-  phrases_to_avoid: string[] | null;
-  top_customer_questions: string[] | null;
-  common_objections: string[] | null;
-  objection_responses: Record<string, string> | null;
+  words_to_use: string | null;
+  words_to_avoid: string | null;
+  ideal_customer_tone: string | null;
   
-  // Step 3: Call Logic (Section 4 & 9)
-  info_to_collect: string[] | null;
-  inbound_goals: string[] | null;
-  outbound_goals: string[] | null;
-  transfer_protocols: string | null;
-  pricing_strategy: string | null;
-  pricing_details: string | null;
+  // Step 3: Customer Understanding
+  customer_problems: string | null;
+  frequent_questions: string | null;
+  common_objections: string | null;
+  caller_decision_stage: string | null;
   
-  // Step 4: Integration (Section 11)
+  // Step 4: Lead Qualification
+  essential_info_to_collect: string | null;
+  hot_lead_criteria: string | null;
+  qualifying_questions: string | null;
+  escalation_situations: string | null;
+  
+  // Step 5: Booking & Scheduling
   booking_process: string | null;
-  calendar_systems: string[] | null;
+  scheduling_window: string | null;
+  appointment_durations: string | null;
+  blackout_dates: string | null;
+  calendar_integration: string | null;
+  
+  // Step 6: Pricing & Offers
+  pricing_discussion_approach: string | null;
+  current_promotions: string | null;
+  financing_options: string | null;
+  consultation_triggers: string | null;
+  
+  // Step 7: Competition & Differentiation
+  main_competitors: string | null;
+  differentiators: string | null;
+  unique_selling_propositions: string | null;
+  awards_certifications: string | null;
+  
+  // Step 8: Objection Handling
+  reasons_people_dont_book: string | null;
+  price_objection_handling: string | null;
+  warranty_guarantee_messaging: string | null;
+  trust_building_elements: string | null;
+  
+  // Step 9: Goals & Follow-up
+  primary_goal: string | null;
+  followup_process: string | null;
+  lead_notification_recipients: string | null;
+  
+  // Step 10: Compliance & Limitations
+  regulatory_requirements: string | null;
+  agent_limitations: string | null;
+  required_disclosures: string | null;
+  
+  // Step 11: Integration
   crm_system: string | null;
-  crm_integration_notes: string | null;
-  
-  // Extended Intake Fields (Sections 5-13)
-  // Section 5: Ideal Customer Profile
-  ideal_customer_description: string | null;
-  customer_pain_points: string[] | null;
-  
-  // Section 6: Competitor Information
-  main_competitors: string[] | null;
-  competitive_advantages: string[] | null;
-  
-  // Section 8: Lead Qualification
-  qualification_criteria: string[] | null;
-  disqualification_criteria: string[] | null;
-  lead_scoring_notes: string | null;
-  
-  // Section 10: Appointment Setting
-  appointment_types: string[] | null;
-  appointment_duration: string | null;
-  appointment_buffer: string | null;
-  
-  // Section 12: Follow-up Protocols
-  followup_timing: string | null;
-  followup_channels: string[] | null;
-  followup_sequence: string | null;
-  
-  // Section 13: Reporting & KPIs
-  key_metrics: string[] | null;
-  reporting_frequency: string | null;
-  success_criteria: string | null;
+  lead_tagging: string | null;
+  booking_system_fields: string | null;
+  other_integrations: string | null;
   
   // Metadata
   current_step: number;

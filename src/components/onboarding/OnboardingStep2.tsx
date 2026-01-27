@@ -12,10 +12,10 @@ import { ClientIntakeResponse } from '@/types/database';
 
 const schema = z.object({
   communication_style: z.string().min(1, 'Please select a communication style'),
-  intro_sentence: z.string().min(1, 'Intro sentence is required'),
-  phrases_to_use: z.string().optional(),
-  phrases_to_avoid: z.string().optional(),
-  top_customer_questions: z.string().min(1, 'Add at least one common question'),
+  words_to_use: z.string().optional(),
+  words_to_avoid: z.string().optional(),
+  ideal_customer_tone: z.string().optional(),
+  frequent_questions: z.string().min(1, 'Add at least one common question'),
   common_objections: z.string().optional(),
 });
 
@@ -41,22 +41,22 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
     resolver: zodResolver(schema),
     defaultValues: {
       communication_style: data.communication_style || '',
-      intro_sentence: data.intro_sentence || '',
-      phrases_to_use: data.phrases_to_use?.join('\n') || '',
-      phrases_to_avoid: data.phrases_to_avoid?.join('\n') || '',
-      top_customer_questions: data.top_customer_questions?.join('\n') || '',
-      common_objections: data.common_objections?.join('\n') || '',
+      words_to_use: data.words_to_use || '',
+      words_to_avoid: data.words_to_avoid || '',
+      ideal_customer_tone: data.ideal_customer_tone || '',
+      frequent_questions: data.frequent_questions || '',
+      common_objections: data.common_objections || '',
     },
   });
 
   const onSubmit = (values: FormValues) => {
     onNext({
       communication_style: values.communication_style,
-      intro_sentence: values.intro_sentence,
-      phrases_to_use: values.phrases_to_use?.split('\n').map(s => s.trim()).filter(Boolean) || [],
-      phrases_to_avoid: values.phrases_to_avoid?.split('\n').map(s => s.trim()).filter(Boolean) || [],
-      top_customer_questions: values.top_customer_questions.split('\n').map(s => s.trim()).filter(Boolean),
-      common_objections: values.common_objections?.split('\n').map(s => s.trim()).filter(Boolean) || [],
+      words_to_use: values.words_to_use || null,
+      words_to_avoid: values.words_to_avoid || null,
+      ideal_customer_tone: values.ideal_customer_tone || null,
+      frequent_questions: values.frequent_questions,
+      common_objections: values.common_objections || null,
     });
   };
 
@@ -114,19 +114,19 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Sparkles className="h-5 w-5 text-primary" />
-              Opening & Phrases
+              Brand Language
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="intro_sentence"
+              name="ideal_customer_tone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Opening Line *</FormLabel>
+                  <FormLabel>Ideal Customer Tone</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Thank you for calling Smith Plumbing, this is Alex. How can I help you today?"
+                      placeholder="Describe how you want the agent to sound when speaking with your ideal customer..."
                       {...field} 
                     />
                   </FormControl>
@@ -138,17 +138,17 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="phrases_to_use"
+                name="words_to_use"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-green-600 flex items-center gap-1">
                       <Sparkles className="h-4 w-4" />
-                      Phrases to Use
+                      Words/Phrases to Use
                     </FormLabel>
                     <FormControl>
                       <Textarea placeholder="We'd be happy to help&#10;Let me get you scheduled" className="min-h-[100px]" {...field} />
                     </FormControl>
-                    <FormDescription>One per line</FormDescription>
+                    <FormDescription>Key phrases your brand uses</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -156,17 +156,17 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
 
               <FormField
                 control={form.control}
-                name="phrases_to_avoid"
+                name="words_to_avoid"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-destructive flex items-center gap-1">
                       <Ban className="h-4 w-4" />
-                      Phrases to Avoid
+                      Words/Phrases to Avoid
                     </FormLabel>
                     <FormControl>
                       <Textarea placeholder="No problem&#10;I don't know" className="min-h-[100px]" {...field} />
                     </FormControl>
-                    <FormDescription>One per line</FormDescription>
+                    <FormDescription>Words that don't fit your brand</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -186,10 +186,10 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="top_customer_questions"
+              name="frequent_questions"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Top 5 Customer Questions *</FormLabel>
+                  <FormLabel>Frequently Asked Questions *</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="How much does a drain cleaning cost?&#10;Do you offer emergency services?&#10;How soon can you come out?&#10;Are you licensed and insured?&#10;Do you offer financing?"
@@ -197,7 +197,7 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
                       {...field} 
                     />
                   </FormControl>
-                  <FormDescription>One question per line</FormDescription>
+                  <FormDescription>List the top questions customers ask</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -219,7 +219,7 @@ export function OnboardingStep2({ data, onNext, onBack, isSaving }: Step2Props) 
                       {...field} 
                     />
                   </FormControl>
-                  <FormDescription>One objection per line</FormDescription>
+                  <FormDescription>Objections customers commonly raise</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

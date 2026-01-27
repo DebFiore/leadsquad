@@ -3,19 +3,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Calendar, Database, Settings, CheckCircle2 } from 'lucide-react';
+import { Calendar, Database, CheckCircle2 } from 'lucide-react';
 import { ClientIntakeResponse } from '@/types/database';
 
 const schema = z.object({
   booking_process: z.string().min(1, 'Please select a booking process'),
-  calendar_systems: z.array(z.string()).optional(),
+  calendar_integration: z.string().optional(),
   crm_system: z.string().optional(),
-  crm_integration_notes: z.string().optional(),
+  other_integrations: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -32,17 +31,6 @@ const bookingProcessOptions = [
   { value: 'request', label: 'Booking Request', description: 'Agent collects info, team confirms appointment' },
   { value: 'callback', label: 'Callback Scheduling', description: 'Agent schedules a callback from your team' },
   { value: 'none', label: 'No Booking', description: 'Agent only collects information' },
-];
-
-const calendarSystemOptions = [
-  { id: 'google_calendar', label: 'Google Calendar' },
-  { id: 'outlook', label: 'Microsoft Outlook' },
-  { id: 'calendly', label: 'Calendly' },
-  { id: 'acuity', label: 'Acuity Scheduling' },
-  { id: 'servicetitan', label: 'ServiceTitan' },
-  { id: 'housecall_pro', label: 'Housecall Pro' },
-  { id: 'jobber', label: 'Jobber' },
-  { id: 'other', label: 'Other' },
 ];
 
 const crmOptions = [
@@ -63,18 +51,18 @@ export function Step5TechnicalCRM({ data, onSubmit, onBack, isSaving }: Step5Pro
     resolver: zodResolver(schema),
     defaultValues: {
       booking_process: data.booking_process || '',
-      calendar_systems: data.calendar_systems || [],
+      calendar_integration: data.calendar_integration || '',
       crm_system: data.crm_system || 'none',
-      crm_integration_notes: data.crm_integration_notes || '',
+      other_integrations: data.other_integrations || '',
     },
   });
 
   const handleSubmit = (values: FormValues) => {
     onSubmit({
       booking_process: values.booking_process,
-      calendar_systems: values.calendar_systems || [],
+      calendar_integration: values.calendar_integration || null,
       crm_system: values.crm_system || null,
-      crm_integration_notes: values.crm_integration_notes || null,
+      other_integrations: values.other_integrations || null,
     });
   };
 
@@ -133,54 +121,30 @@ export function Step5TechnicalCRM({ data, onSubmit, onBack, isSaving }: Step5Pro
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-primary" />
-              Calendar Systems
+              <Calendar className="h-5 w-5 text-primary" />
+              Calendar System
             </CardTitle>
             <CardDescription>
-              Which calendar or scheduling systems do you use?
+              Which calendar or scheduling system do you use?
             </CardDescription>
           </CardHeader>
           <CardContent>
             <FormField
               control={form.control}
-              name="calendar_systems"
-              render={() => (
+              name="calendar_integration"
+              render={({ field }) => (
                 <FormItem>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {calendarSystemOptions.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="calendar_systems"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...(field.value || []), item.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal cursor-pointer">
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          )
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <FormLabel>Calendar Integration</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="e.g., Google Calendar, ServiceTitan, Calendly, Housecall Pro"
+                      className="min-h-[80px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Describe your calendar/scheduling systems
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -235,10 +199,10 @@ export function Step5TechnicalCRM({ data, onSubmit, onBack, isSaving }: Step5Pro
 
             <FormField
               control={form.control}
-              name="crm_integration_notes"
+              name="other_integrations"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Integration Notes</FormLabel>
+                  <FormLabel>Other Integrations</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="e.g., Need to sync contacts bidirectionally. Want call recordings attached to contact records. Specific custom fields to populate..."
@@ -247,7 +211,7 @@ export function Step5TechnicalCRM({ data, onSubmit, onBack, isSaving }: Step5Pro
                     />
                   </FormControl>
                   <FormDescription>
-                    Any specific requirements for your CRM integration
+                    Any other integration requirements
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

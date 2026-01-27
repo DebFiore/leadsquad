@@ -3,8 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -13,9 +12,11 @@ import { ClientIntakeResponse } from '@/types/database';
 
 const schema = z.object({
   booking_process: z.string().min(1, 'Please select a booking process'),
-  calendar_systems: z.array(z.string()).optional(),
+  scheduling_window: z.string().optional(),
+  appointment_durations: z.string().optional(),
+  calendar_integration: z.string().optional(),
   crm_system: z.string().optional(),
-  crm_integration_notes: z.string().optional(),
+  other_integrations: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -34,15 +35,6 @@ const bookingOptions = [
   { value: 'none', label: 'No Booking', description: 'Information only' },
 ];
 
-const calendarOptions = [
-  { id: 'google_calendar', label: 'Google Calendar' },
-  { id: 'outlook', label: 'Outlook' },
-  { id: 'calendly', label: 'Calendly' },
-  { id: 'servicetitan', label: 'ServiceTitan' },
-  { id: 'housecall_pro', label: 'Housecall Pro' },
-  { id: 'jobber', label: 'Jobber' },
-];
-
 const crmOptions = [
   { value: 'none', label: 'None' },
   { value: 'salesforce', label: 'Salesforce' },
@@ -59,18 +51,22 @@ export function OnboardingStep4({ data, onSubmit, onBack, isSaving }: Step4Props
     resolver: zodResolver(schema),
     defaultValues: {
       booking_process: data.booking_process || '',
-      calendar_systems: data.calendar_systems || [],
+      scheduling_window: data.scheduling_window || '',
+      appointment_durations: data.appointment_durations || '',
+      calendar_integration: data.calendar_integration || '',
       crm_system: data.crm_system || 'none',
-      crm_integration_notes: data.crm_integration_notes || '',
+      other_integrations: data.other_integrations || '',
     },
   });
 
   const handleSubmit = (values: FormValues) => {
     onSubmit({
       booking_process: values.booking_process,
-      calendar_systems: values.calendar_systems || [],
+      scheduling_window: values.scheduling_window || null,
+      appointment_durations: values.appointment_durations || null,
+      calendar_integration: values.calendar_integration || null,
       crm_system: values.crm_system || null,
-      crm_integration_notes: values.crm_integration_notes || null,
+      other_integrations: values.other_integrations || null,
     });
   };
 
@@ -88,15 +84,16 @@ export function OnboardingStep4({ data, onSubmit, onBack, isSaving }: Step4Props
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="h-5 w-5 text-primary" />
-              Booking Process
+              Booking & Scheduling
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <FormField
               control={form.control}
               name="booking_process"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Booking Process *</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -121,44 +118,59 @@ export function OnboardingStep4({ data, onSubmit, onBack, isSaving }: Step4Props
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Calendar Systems</CardTitle>
-            <CardDescription>Which scheduling tools do you use?</CardDescription>
-          </CardHeader>
-          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="scheduling_window"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Scheduling Window</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="How far out can appointments be scheduled?"
+                        className="min-h-[80px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="appointment_durations"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Appointment Durations</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Service call: 1-2 hours&#10;Estimate: 30 min"
+                        className="min-h-[80px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
-              name="calendar_systems"
-              render={() => (
+              name="calendar_integration"
+              render={({ field }) => (
                 <FormItem>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {calendarOptions.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="calendar_systems"
-                        render={({ field }) => (
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...(field.value || []), item.id])
-                                    : field.onChange(field.value?.filter((v) => v !== item.id))
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">{item.label}</FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
+                  <FormLabel>Calendar System</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="e.g., Google Calendar, ServiceTitan, Calendly"
+                      className="min-h-[60px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>Which calendar/scheduling system do you use?</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -170,7 +182,7 @@ export function OnboardingStep4({ data, onSubmit, onBack, isSaving }: Step4Props
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Database className="h-5 w-5 text-primary" />
-              CRM System
+              CRM & Integrations
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -179,6 +191,7 @@ export function OnboardingStep4({ data, onSubmit, onBack, isSaving }: Step4Props
               name="crm_system"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>CRM System</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -205,13 +218,13 @@ export function OnboardingStep4({ data, onSubmit, onBack, isSaving }: Step4Props
 
             <FormField
               control={form.control}
-              name="crm_integration_notes"
+              name="other_integrations"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Integration Notes</FormLabel>
+                  <FormLabel>Other Integrations</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Any specific CRM requirements or custom fields to sync..."
+                      placeholder="Any other tools or systems you'd like to integrate..."
                       className="min-h-[80px]"
                       {...field} 
                     />
