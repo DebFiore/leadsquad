@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { intakeService } from '@/services/intakeService';
@@ -11,63 +11,132 @@ import { OnboardingStep4 } from './OnboardingStep4';
 import { DeploymentScreen } from './DeploymentScreen';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 import logo from '@/assets/leadsquad-logo-transparent.png';
 
 const STEP_LABELS = ['Business Basics', 'Brand Identity', 'Call Logic', 'Integration'];
 
 export function OnboardingWizard() {
-  const { organization, refreshOrganization } = useAuth();
+  const { user, organization, refreshOrganization } = useAuth();
   const navigate = useNavigate();
   const [intake, setIntake] = useState<ClientIntakeResponse | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [localOrgId, setLocalOrgId] = useState<string | null>(null);
+  const initRef = useRef(false);
 
   useEffect(() => {
-    async function loadOrCreateIntake() {
-      if (!organization?.id) return;
-      
+    async function initializeOnboarding() {
+      // Prevent double initialization
+      if (initRef.current) return;
+      if (!user?.id) return;
+
+      initRef.current = true;
+      setIsLoading(true);
+
       try {
-        setIsLoading(true);
-        let existingIntake = await intakeService.getIntakeByOrganization(organization.id);
-        
-        if (!existingIntake) {
-          existingIntake = await intakeService.createIntake(organization.id);
+        let orgId = organization?.id;
+
+        // If no organization exists, create one for the new user
+        if (!orgId) {
+          console.log('No organization found, creating one for user:', user.id);
+
+          const { data: newOrg, error: orgError } = await supabase
+            .from('organizations')
+            .insert({
+              name: 'My Organization',
+              owner_id: user.id,
+              onboarding_completed: false,
+              status: 'pending',
+              is_active: true,
+            })
+            .select()
+            .single();
+
+          if (orgError) {
+            console.error('Failed to create organization:', orgError);
+            toast.error('Failed to set up your account. Please try again.');
+            setIsLoading(false);
+            return;
+          }
+
+          orgId = newOrg.id;
+          setLocalOrgId(orgId);
+          console.log('Created organization:', orgId);
+
+          // Also add user as a member (owner)
+          const { error: memberError } = await supabase
+            .from('organization_members')
+            .insert({
+              organization_id: orgId,
+              user_id: user.id,
+              role: 'owner',
+            });
+
+          if (memberError) {
+            console.error('Failed to create membership:', memberError);
+            // Non-fatal, continue
+          }
+
+          // Refresh the auth context to pick up the new org
+          refreshOrganization();
+        } else {
+          setLocalOrgId(orgId);
         }
-        
+
+        // Now load or create the intake
+        let existingIntake = await intakeService.getIntakeByOrganization(orgId);
+
+        if (!existingIntake) {
+          console.log('No intake found, creating one for org:', orgId);
+          existingIntake = await intakeService.createIntake(orgId);
+          console.log('Created intake:', existingIntake.id);
+        }
+
         setIntake(existingIntake);
         setCurrentStep(existingIntake.current_step || 1);
       } catch (error) {
-        console.error('Failed to load intake:', error);
+        console.error('Failed to initialize onboarding:', error);
         toast.error('Failed to load onboarding data');
       } finally {
         setIsLoading(false);
       }
     }
 
-    loadOrCreateIntake();
-  }, [organization?.id]);
+    initializeOnboarding();
+  }, [user?.id, organization?.id]);
 
   const handleStepComplete = async (stepData: Partial<ClientIntakeResponse>, nextStep: number) => {
-    if (!intake?.id) return;
+    if (!intake?.id) {
+      console.error('No intake ID available - intake:', intake);
+      toast.error('Setup not initialized. Please refresh the page.');
+      return;
+    }
 
     try {
       setIsSaving(true);
+      console.log('Saving step progress:', { intakeId: intake.id, stepData, nextStep });
       const updatedIntake = await intakeService.saveStepProgress(intake.id, stepData, nextStep);
+      console.log('Step saved successfully:', updatedIntake);
       setIntake(updatedIntake);
       setCurrentStep(nextStep);
       toast.success('Progress saved!');
     } catch (error) {
       console.error('Failed to save progress:', error);
-      toast.error('Failed to save progress');
+      toast.error('Failed to save progress. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleFinalSubmit = async (stepData: Partial<ClientIntakeResponse>) => {
-    if (!intake?.id || !organization?.id) return;
+    const orgId = localOrgId || organization?.id;
+    if (!intake?.id || !orgId) {
+      toast.error('Setup not initialized. Please refresh the page.');
+      return;
+    }
 
     try {
       setIsCompleting(true);
@@ -79,7 +148,7 @@ export function OnboardingWizard() {
       await intakeService.completeIntake(intake.id);
       
       // Mark organization onboarding as complete
-      await intakeService.markOnboardingComplete(organization.id);
+      await intakeService.markOnboardingComplete(orgId);
       
       // Refresh organization data
       await refreshOrganization();
@@ -114,10 +183,12 @@ export function OnboardingWizard() {
     );
   }
 
-  if (isCompleting && organization?.id) {
+  const effectiveOrgId = localOrgId || organization?.id;
+
+  if (isCompleting && effectiveOrgId) {
     return (
-      <DeploymentScreen 
-        organizationId={organization.id} 
+      <DeploymentScreen
+        organizationId={effectiveOrgId}
         onComplete={handleDeploymentComplete}
       />
     );
