@@ -196,26 +196,38 @@ export function TypeformWizard() {
 
   const handleComplete = async () => {
     const orgId = localOrgId || organization?.id;
-    if (!intake?.id || !orgId) return;
+    if (!intake?.id || !orgId) {
+      console.error('Missing intake or org ID:', { intakeId: intake?.id, orgId });
+      toast.error('Missing required data');
+      return;
+    }
 
     try {
       setIsCompleting(true);
 
-      // Save all answers
+      // Save all answers first
       const updateData: Partial<ClientIntakeResponse> = {};
       for (const [key, value] of Object.entries(answers)) {
         (updateData as any)[key] = value || null;
       }
 
+      console.log('Saving final answers...');
       await intakeService.updateIntake(intake.id, updateData);
+      
+      console.log('Marking intake complete...');
       await intakeService.completeIntake(intake.id);
+      
+      console.log('Marking onboarding complete...');
       await intakeService.markOnboardingComplete(orgId);
-      await refreshOrganization();
-
+      
+      // Don't refresh organization yet - let DeploymentScreen handle the redirect
+      // This prevents the DashboardLayout redirect from interfering
+      console.log('Setup complete, showing deployment screen...');
       toast.success('Setup complete! Building your AI agent...');
-    } catch (error) {
-      console.error('Failed to complete:', error);
-      toast.error('Failed to complete setup');
+    } catch (error: any) {
+      console.error('Failed to complete setup:', error);
+      console.error('Error details:', error?.message, error?.code, error?.details);
+      toast.error(`Failed to complete setup: ${error?.message || 'Unknown error'}`);
       setIsCompleting(false);
     }
   };
