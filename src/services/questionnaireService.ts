@@ -234,6 +234,7 @@ export const questionnaireService = {
 
   flattenToQuestions(sections: ParsedSection[]): ParsedQuestion[] {
     const questions: ParsedQuestion[] = [];
+    const seenAnswerKeys = new Set<string>();
     
     for (const section of sections) {
       for (const question of section.questions) {
@@ -241,6 +242,13 @@ export const questionnaireService = {
         if (['Hours of Operation', 'Business Address', 'Business Coverage'].includes(question.question)) {
           continue;
         }
+        
+        // Skip duplicate questions based on answerKey (prevents duplicate City, etc.)
+        if (seenAnswerKeys.has(question.answerKey)) {
+          continue;
+        }
+        seenAnswerKeys.add(question.answerKey);
+        
         questions.push({
           ...question,
           section: section.name,
