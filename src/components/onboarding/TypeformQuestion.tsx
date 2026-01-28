@@ -251,41 +251,39 @@ export function TypeformQuestion({
         </div>
       </div>
 
-      {/* Navigation buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t border-border p-4">
-        <div className="max-w-xl mx-auto flex justify-between items-center">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onBack}
-            disabled={isFirst}
-            className="gap-2"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back
-          </Button>
+      {/* Navigation buttons - positioned higher */}
+      <div className="max-w-xl mx-auto flex justify-between items-center mt-8 px-4">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onBack}
+          disabled={isFirst}
+          className="gap-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </Button>
 
-          <Button
-            type="button"
-            onClick={handleNext}
-            disabled={isSaving}
-            className="gap-2"
-          >
-            {isSaving ? (
-              'Saving...'
-            ) : isLast ? (
-              <>
-                Complete Setup
-                <Check className="w-4 h-4" />
-              </>
-            ) : (
-              <>
-                Continue
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-          </Button>
-        </div>
+        <Button
+          type="button"
+          onClick={handleNext}
+          disabled={isSaving}
+          className="gap-2"
+        >
+          {isSaving ? (
+            'Saving...'
+          ) : isLast ? (
+            <>
+              Complete Setup
+              <Check className="w-4 h-4" />
+            </>
+          ) : (
+            <>
+              Continue
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );
