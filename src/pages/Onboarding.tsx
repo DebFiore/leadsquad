@@ -1,10 +1,10 @@
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { TypeformWizard } from '@/components/onboarding/TypeformWizard';
 
 export default function Onboarding() {
   return (
     <ProtectedRoute>
-      <OnboardingWizard />
+      <TypeformWizard />
     </ProtectedRoute>
   );
 }
