@@ -64,6 +64,24 @@ export function TypeformQuestion({
     onNext();
   };
 
+  // Global Enter key listener
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger on textarea (allow newlines) or multiselect (requires explicit Continue)
+      if (question.fieldType === 'textarea' || question.fieldType === 'multiselect') {
+        return;
+      }
+      
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [question.fieldType, localValue, question.isRequired, onNext]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && question.fieldType !== 'textarea') {
       e.preventDefault();
