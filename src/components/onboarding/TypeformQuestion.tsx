@@ -230,6 +230,50 @@ export function TypeformQuestion({
               </div>
             )}
 
+            {question.fieldType === 'multiselect' && question.options && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">Select all that apply</p>
+                <div className="space-y-3">
+                  {question.options.map((option) => {
+                    const selectedOptions = localValue ? localValue.split(', ') : [];
+                    const isSelected = selectedOptions.includes(option);
+                    
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => {
+                          let newSelected: string[];
+                          if (isSelected) {
+                            newSelected = selectedOptions.filter(o => o !== option);
+                          } else {
+                            newSelected = [...selectedOptions, option];
+                          }
+                          handleChange(newSelected.join(', '));
+                        }}
+                        className={cn(
+                          "w-full text-left px-6 py-4 rounded-lg border-2 transition-all",
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-muted hover:border-primary/50 hover:bg-muted/50"
+                        )}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className={cn(
+                            "w-6 h-6 rounded-md border-2 flex items-center justify-center",
+                            isSelected ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"
+                          )}>
+                            {isSelected && <Check className="w-4 h-4" />}
+                          </span>
+                          <span className="font-medium">{option}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
             {question.fieldType === 'hours' && (
               <HoursOfOperationInput
                 value={localValue}
@@ -243,7 +287,7 @@ export function TypeformQuestion({
           </div>
 
           {/* Navigation hint */}
-          {question.fieldType !== 'dropdown' && (
+          {question.fieldType !== 'dropdown' && question.fieldType !== 'multiselect' && (
             <p className="text-sm text-muted-foreground">
               Press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Enter ↵</kbd> to continue
             </p>
