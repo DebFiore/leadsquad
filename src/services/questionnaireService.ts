@@ -238,8 +238,8 @@ export const questionnaireService = {
     
     for (const section of sections) {
       for (const question of section.questions) {
-        // Skip compound parent questions (Hours of Operation, Business Address, Business Coverage)
-        if (['Hours of Operation', 'Business Address', 'Business Coverage'].includes(question.question)) {
+        // Skip compound parent questions and irrelevant questions
+        if (['Hours of Operation', 'Business Address', 'Business Coverage', 'National'].includes(question.question)) {
           continue;
         }
         
