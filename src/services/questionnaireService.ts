@@ -189,19 +189,9 @@ export const questionnaireService = {
       }
 
       // Sub-field of a compound question (like Address sub-fields)
-      if (row.answer_options && row.field_type && currentQuestion) {
-        // This is a sub-field, create a new question for it
-        if (currentSection) {
-          // Save current question first if it exists and has content
-          if (currentQuestion.question !== 'Business Address' && currentQuestion.question !== 'Hours of Operation' && currentQuestion.question !== 'Business Coverage') {
-            if (dropdownOptions.length > 0) {
-              currentQuestion.options = [...dropdownOptions];
-            }
-            currentSection.questions.push(currentQuestion);
-            dropdownOptions = [];
-          }
-        }
-
+      // Only process if it's NOT part of Hours of Operation (which has its own special handling)
+      if (row.answer_options && row.field_type && !row.field_type.toLowerCase().includes('table - 7 days')) {
+        // This is a sub-field like Street Address, City, State, Zip
         questionCounter++;
         const subFieldType = getFieldType(row.field_type);
         const subQuestion: ParsedQuestion = {
@@ -216,7 +206,8 @@ export const questionnaireService = {
         if (currentSection) {
           currentSection.questions.push(subQuestion);
         }
-        currentQuestion = null;
+        // Keep currentQuestion intact for parent context
+        continue;
       }
     }
 
