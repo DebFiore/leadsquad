@@ -26,10 +26,14 @@ export type Database = {
           business_city: string | null
           business_coverage: string | null
           business_name: string | null
+          business_phone: string | null
           business_state: string | null
           business_type: string | null
+          business_website: string | null
           business_zip: string | null
+          calendar_api: string | null
           calendar_integration: string | null
+          calendar_name: string | null
           caller_decision_stage: string | null
           common_objections: string | null
           communication_style: string | null
@@ -42,9 +46,13 @@ export type Database = {
           differentiators: string | null
           escalation_situations: string | null
           essential_info_to_collect: string | null
+          financing_available: string | null
           financing_options: string | null
+          first_time_discount: string | null
+          first_time_discount_description: string | null
           followup_process: string | null
           frequent_questions: string | null
+          has_warranty: string | null
           hot_lead_criteria: string | null
           hours_of_operation: string | null
           id: string
@@ -53,6 +61,7 @@ export type Database = {
           lead_notification_recipients: string | null
           lead_tagging: string | null
           main_competitors: string | null
+          nurturing_signals: string | null
           organization_id: string
           other_integrations: string | null
           price_objection_handling: string | null
@@ -64,6 +73,7 @@ export type Database = {
           required_disclosures: string | null
           scheduling_window: string | null
           services_offered: string | null
+          special_offers_frequency: string | null
           trust_building_elements: string | null
           unique_selling_propositions: string | null
           updated_at: string
@@ -82,10 +92,14 @@ export type Database = {
           business_city?: string | null
           business_coverage?: string | null
           business_name?: string | null
+          business_phone?: string | null
           business_state?: string | null
           business_type?: string | null
+          business_website?: string | null
           business_zip?: string | null
+          calendar_api?: string | null
           calendar_integration?: string | null
+          calendar_name?: string | null
           caller_decision_stage?: string | null
           common_objections?: string | null
           communication_style?: string | null
@@ -98,9 +112,13 @@ export type Database = {
           differentiators?: string | null
           escalation_situations?: string | null
           essential_info_to_collect?: string | null
+          financing_available?: string | null
           financing_options?: string | null
+          first_time_discount?: string | null
+          first_time_discount_description?: string | null
           followup_process?: string | null
           frequent_questions?: string | null
+          has_warranty?: string | null
           hot_lead_criteria?: string | null
           hours_of_operation?: string | null
           id?: string
@@ -109,6 +127,7 @@ export type Database = {
           lead_notification_recipients?: string | null
           lead_tagging?: string | null
           main_competitors?: string | null
+          nurturing_signals?: string | null
           organization_id: string
           other_integrations?: string | null
           price_objection_handling?: string | null
@@ -120,6 +139,7 @@ export type Database = {
           required_disclosures?: string | null
           scheduling_window?: string | null
           services_offered?: string | null
+          special_offers_frequency?: string | null
           trust_building_elements?: string | null
           unique_selling_propositions?: string | null
           updated_at?: string
@@ -138,10 +158,14 @@ export type Database = {
           business_city?: string | null
           business_coverage?: string | null
           business_name?: string | null
+          business_phone?: string | null
           business_state?: string | null
           business_type?: string | null
+          business_website?: string | null
           business_zip?: string | null
+          calendar_api?: string | null
           calendar_integration?: string | null
+          calendar_name?: string | null
           caller_decision_stage?: string | null
           common_objections?: string | null
           communication_style?: string | null
@@ -154,9 +178,13 @@ export type Database = {
           differentiators?: string | null
           escalation_situations?: string | null
           essential_info_to_collect?: string | null
+          financing_available?: string | null
           financing_options?: string | null
+          first_time_discount?: string | null
+          first_time_discount_description?: string | null
           followup_process?: string | null
           frequent_questions?: string | null
+          has_warranty?: string | null
           hot_lead_criteria?: string | null
           hours_of_operation?: string | null
           id?: string
@@ -165,6 +193,7 @@ export type Database = {
           lead_notification_recipients?: string | null
           lead_tagging?: string | null
           main_competitors?: string | null
+          nurturing_signals?: string | null
           organization_id?: string
           other_integrations?: string | null
           price_objection_handling?: string | null
@@ -176,6 +205,7 @@ export type Database = {
           required_disclosures?: string | null
           scheduling_window?: string | null
           services_offered?: string | null
+          special_offers_frequency?: string | null
           trust_building_elements?: string | null
           unique_selling_propositions?: string | null
           updated_at?: string
