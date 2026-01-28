@@ -16,12 +16,17 @@ export interface ParsedQuestion {
   id: string;
   section: string;
   question: string;
-  fieldType: 'text' | 'textarea' | 'dropdown' | 'phone' | 'url' | 'state' | 'zip' | 'hours' | 'coverage';
+  fieldType: 'text' | 'textarea' | 'dropdown' | 'multiselect' | 'phone' | 'url' | 'state' | 'zip' | 'hours' | 'coverage';
   options?: string[];
   isRequired: boolean;
   placeholder?: string;
   answerKey: string; // Maps to client_intake_responses column
 }
+
+// Questions that should allow multiple selections
+const MULTI_SELECT_QUESTIONS = [
+  "What's your booking process?",
+];
 
 export interface ParsedSection {
   name: string;
@@ -167,7 +172,7 @@ export const questionnaireService = {
           id: `q_${questionCounter}`,
           section: currentSection?.name || 'General',
           question: row.question,
-          fieldType,
+          fieldType: MULTI_SELECT_QUESTIONS.includes(row.question) ? 'multiselect' : fieldType,
           isRequired: row.question.includes('*') || ['business_name', 'services_offered'].includes(getAnswerKey(row.question)),
           answerKey: getAnswerKey(row.question),
         };
