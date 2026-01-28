@@ -240,6 +240,7 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
       // Give n8n a bit more time, then auto-complete
       const timeout = setTimeout(() => {
         if (deploymentStatus === 'deploying') {
+          console.log('Auto-completing deployment - animation finished');
           setDeploymentStatus('success');
           setOverallProgress(100);
           setIsPolling(false);
@@ -247,13 +248,32 @@ export function DeploymentScreen({ organizationId, onComplete }: DeploymentScree
           setTimeout(() => {
             onComplete();
             handlePostDeploymentRedirect();
-          }, 2000);
+          }, 1500);
         }
-      }, 5000);
+      }, 3000); // Reduced from 5s to 3s for faster fallback
 
       return () => clearTimeout(timeout);
     }
   }, [currentStepIndex, stepProgress, deploymentStatus, onComplete]);
+
+  // Safety net: Force redirect after max wait time regardless of state
+  useEffect(() => {
+    const maxWaitTimeout = setTimeout(() => {
+      if (deploymentStatus === 'deploying') {
+        console.log('Force completing deployment - max wait time reached');
+        setDeploymentStatus('success');
+        setOverallProgress(100);
+        setIsPolling(false);
+        
+        setTimeout(() => {
+          onComplete();
+          handlePostDeploymentRedirect();
+        }, 1000);
+      }
+    }, totalDuration * 1000 + 10000); // Total animation time + 10s buffer
+
+    return () => clearTimeout(maxWaitTimeout);
+  }, [deploymentStatus, totalDuration, onComplete]);
 
   const currentStep = DEPLOYMENT_STEPS[currentStepIndex];
 

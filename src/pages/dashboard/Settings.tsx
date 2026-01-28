@@ -5,19 +5,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { Separator } from '@/components/ui/separator';
+import { IntakeReviewSection } from '@/components/dashboard/IntakeReviewSection';
 
 export default function Settings() {
   const { user, profile, organization } = useAuth();
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-2xl">
+      <div className="space-y-6 max-w-4xl">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Settings</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your account and organization settings
+            Manage your account, organization, and AI agent configuration
           </p>
         </div>
+
+        {/* AI Configuration / Intake Review */}
+        {organization?.id && (
+          <IntakeReviewSection organizationId={organization.id} />
+        )}
 
         {/* Profile Settings */}
         <Card className="bg-card border-border">
