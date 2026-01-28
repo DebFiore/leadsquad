@@ -99,12 +99,14 @@ function getFieldType(fieldTypeStr: string | null): ParsedQuestion['fieldType'] 
   const ft = fieldTypeStr.toLowerCase();
   
   if (ft.includes('large text') || ft.includes('textarea')) return 'textarea';
-  if (ft.includes('dropdown')) return 'dropdown';
-  if (ft.includes('phone')) return 'phone';
-  if (ft.includes('https')) return 'url';
-  if (ft.includes('state') && ft.includes('2 character')) return 'state';
+  // Check specific types BEFORE generic dropdown
+  if (ft.includes('state') && (ft.includes('2 character') || ft.includes('abbreviation'))) return 'state';
   if (ft.includes('numerical 5') || ft.includes('zip')) return 'zip';
   if (ft.includes('table - 7 days')) return 'hours';
+  if (ft.includes('phone')) return 'phone';
+  if (ft.includes('https')) return 'url';
+  // Generic dropdown check last
+  if (ft.includes('dropdown')) return 'dropdown';
   
   return 'text';
 }
