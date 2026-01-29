@@ -117,10 +117,11 @@ function getAnswerKey(question: string): string {
 
 export const questionnaireService = {
   async fetchQuestions(): Promise<QuestionnaireRow[]> {
+    // Fetch without is_active filter to avoid schema cache issues
+    // All questions should be active by default
     const { data, error } = await supabase
       .from('client_onboarding_questionnaire')
-      .select('*')
-      .eq('is_active', true)
+      .select('id, section, question, answer_options, answer_options_1, answer_options_2, field_type, sort_order, created_at, updated_at')
       .order('sort_order', { ascending: true });
 
     if (error) {
@@ -128,7 +129,7 @@ export const questionnaireService = {
       throw error;
     }
 
-    return data || [];
+    return (data || []) as QuestionnaireRow[];
   },
 
   parseQuestionsIntoSections(rows: QuestionnaireRow[]): ParsedSection[] {
