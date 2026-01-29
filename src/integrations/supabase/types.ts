@@ -223,6 +223,48 @@ export type Database = {
           },
         ]
       }
+      client_onboarding_questionnaire: {
+        Row: {
+          answer_options: string | null
+          answer_options_1: string | null
+          answer_options_2: string | null
+          created_at: string
+          field_type: string | null
+          id: number
+          is_active: boolean | null
+          question: string | null
+          section: string | null
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          answer_options?: string | null
+          answer_options_1?: string | null
+          answer_options_2?: string | null
+          created_at?: string
+          field_type?: string | null
+          id?: number
+          is_active?: boolean | null
+          question?: string | null
+          section?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          answer_options?: string | null
+          answer_options_1?: string | null
+          answer_options_2?: string | null
+          created_at?: string
+          field_type?: string | null
+          id?: number
+          is_active?: boolean | null
+          question?: string | null
+          section?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       organization_members: {
         Row: {
           created_at: string

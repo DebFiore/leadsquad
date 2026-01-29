@@ -120,7 +120,8 @@ export const questionnaireService = {
     const { data, error } = await supabase
       .from('client_onboarding_questionnaire')
       .select('*')
-      .order('id', { ascending: true });
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
 
     if (error) {
       console.error('Error fetching questionnaire:', error);
