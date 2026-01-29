@@ -65,24 +65,42 @@ export function TypeformWizard() {
             throw orgError;
           }
 
+          console.log('Organization created:', newOrg.id);
+
           // Add user as owner member
-          await supabase.from('organization_members').insert({
+          const { error: memberError } = await supabase.from('organization_members').insert({
             organization_id: newOrg.id,
             user_id: user.id,
             role: 'owner',
           });
 
+          if (memberError) {
+            console.error('Failed to create organization member:', memberError);
+            // Don't throw - org was created, continue anyway
+          } else {
+            console.log('Organization member created');
+          }
+
           orgId = newOrg.id;
           setLocalOrgId(orgId);
+          
+          // Refresh in background - don't await
           refreshOrganization();
         } else {
+          console.log('Using existing organization:', orgId);
           setLocalOrgId(orgId);
         }
 
         // Load or create intake
+        console.log('Fetching intake for org:', orgId);
         let existingIntake = await intakeService.getIntakeByOrganization(orgId);
+        
         if (!existingIntake) {
+          console.log('No existing intake, creating new one...');
           existingIntake = await intakeService.createIntake(orgId);
+          console.log('Intake created:', existingIntake?.id);
+        } else {
+          console.log('Found existing intake:', existingIntake.id);
         }
 
         setIntake(existingIntake);
@@ -198,7 +216,7 @@ export function TypeformWizard() {
     const orgId = localOrgId || organization?.id;
     if (!intake?.id || !orgId) {
       console.error('Missing intake or org ID:', { intakeId: intake?.id, orgId });
-      toast.error('Missing required data');
+      toast.error('Missing required data - please refresh and try again');
       return;
     }
 
@@ -211,23 +229,40 @@ export function TypeformWizard() {
         (updateData as any)[key] = value || null;
       }
 
-      console.log('Saving final answers...');
-      await intakeService.updateIntake(intake.id, updateData);
+      console.log('Step 1: Saving final answers to intake:', intake.id);
+      try {
+        await intakeService.updateIntake(intake.id, updateData);
+        console.log('Step 1 complete: Answers saved');
+      } catch (updateError: any) {
+        console.error('Step 1 failed - updateIntake error:', updateError);
+        throw new Error(`Failed to save answers: ${updateError?.message || 'Unknown error'}`);
+      }
       
-      console.log('Marking intake complete...');
-      await intakeService.completeIntake(intake.id);
+      console.log('Step 2: Marking intake complete');
+      try {
+        await intakeService.completeIntake(intake.id);
+        console.log('Step 2 complete: Intake marked complete');
+      } catch (completeError: any) {
+        console.error('Step 2 failed - completeIntake error:', completeError);
+        throw new Error(`Failed to mark intake complete: ${completeError?.message || 'Unknown error'}`);
+      }
       
-      console.log('Marking onboarding complete...');
-      await intakeService.markOnboardingComplete(orgId);
+      console.log('Step 3: Marking onboarding complete for org:', orgId);
+      try {
+        await intakeService.markOnboardingComplete(orgId);
+        console.log('Step 3 complete: Onboarding marked complete');
+      } catch (onboardingError: any) {
+        console.error('Step 3 failed - markOnboardingComplete error:', onboardingError);
+        throw new Error(`Failed to mark onboarding complete: ${onboardingError?.message || 'Unknown error'}`);
+      }
       
       // Don't refresh organization yet - let DeploymentScreen handle the redirect
       // This prevents the DashboardLayout redirect from interfering
-      console.log('Setup complete, showing deployment screen...');
+      console.log('All steps complete, showing deployment screen...');
       toast.success('Setup complete! Building your AI agent...');
     } catch (error: any) {
       console.error('Failed to complete setup:', error);
-      console.error('Error details:', error?.message, error?.code, error?.details);
-      toast.error(`Failed to complete setup: ${error?.message || 'Unknown error'}`);
+      toast.error(error?.message || 'Failed to complete setup');
       setIsCompleting(false);
     }
   };
