@@ -120,7 +120,7 @@ export const intakeService = {
   ): Promise<ClientIntakeResponse> {
     // Filter to only valid columns to avoid schema cache issues
     const filteredUpdates = filterValidColumns(updates as Record<string, any>);
-    console.log('Updating intake:', { id, originalKeys: Object.keys(updates), filteredKeys: Object.keys(filteredUpdates) });
+    console.log('Updating intake via RPC:', { id, originalKeys: Object.keys(updates), filteredKeys: Object.keys(filteredUpdates) });
     
     if (Object.keys(filteredUpdates).length === 0) {
       console.warn('No valid columns to update');
@@ -133,39 +133,20 @@ export const intakeService = {
       return data as ClientIntakeResponse;
     }
     
-    // Use raw fetch to bypass PostgREST schema cache entirely
-    // This avoids the PGRST204 "column not found in schema cache" error
-    const supabaseUrl = 'https://ywfxxzlzxqvjdjkyxyda.supabase.co';
-    const session = await supabase.auth.getSession();
-    const accessToken = session.data.session?.access_token;
-    
-    if (!accessToken) {
-      throw new Error('Not authenticated');
+    // Use RPC function to bypass PostgREST schema cache entirely
+    // The update_client_intake function handles the update in PL/pgSQL
+    const { data, error } = await supabase.rpc('update_client_intake', {
+      p_intake_id: id,
+      p_updates: filteredUpdates,
+    });
+
+    if (error) {
+      console.error('Error updating intake via RPC:', error);
+      throw error;
     }
     
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/client_intake_responses?id=eq.${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3Znh4emx6eHF2amRqa3l4eWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0Njc2MDgsImV4cCI6MjA4NTA0MzYwOH0.sgBblnsF8j2pvar31u12R60r3cZy4gkJsZh1DMu5vK4',
-          'Authorization': `Bearer ${accessToken}`,
-          'Prefer': 'return=representation',
-        },
-        body: JSON.stringify(filteredUpdates),
-      }
-    );
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error updating intake via raw fetch:', errorText);
-      throw new Error(`Failed to update intake: ${errorText}`);
-    }
-    
-    const data = await response.json();
-    console.log('Intake updated successfully:', data);
-    return (Array.isArray(data) ? data[0] : data) as ClientIntakeResponse;
+    console.log('Intake updated successfully via RPC:', data);
+    return data as ClientIntakeResponse;
   },
 
   async saveStepProgress(
