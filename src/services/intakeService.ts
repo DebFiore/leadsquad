@@ -133,21 +133,39 @@ export const intakeService = {
       return data as ClientIntakeResponse;
     }
     
-    // Cast to 'any' to bypass Supabase schema cache validation issues
-    const { data, error } = await (supabase
-      .from('client_intake_responses') as any)
-      .update(filteredUpdates)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating intake:', error);
-      throw error;
+    // Use raw fetch to bypass PostgREST schema cache entirely
+    // This avoids the PGRST204 "column not found in schema cache" error
+    const supabaseUrl = 'https://ywfxxzlzxqvjdjkyxyda.supabase.co';
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+    
+    if (!accessToken) {
+      throw new Error('Not authenticated');
     }
     
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/client_intake_responses?id=eq.${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3Znh4emx6eHF2amRqa3l4eWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0Njc2MDgsImV4cCI6MjA4NTA0MzYwOH0.sgBblnsF8j2pvar31u12R60r3cZy4gkJsZh1DMu5vK4',
+          'Authorization': `Bearer ${accessToken}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify(filteredUpdates),
+      }
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error updating intake via raw fetch:', errorText);
+      throw new Error(`Failed to update intake: ${errorText}`);
+    }
+    
+    const data = await response.json();
     console.log('Intake updated successfully:', data);
-    return data as ClientIntakeResponse;
+    return (Array.isArray(data) ? data[0] : data) as ClientIntakeResponse;
   },
 
   async saveStepProgress(
