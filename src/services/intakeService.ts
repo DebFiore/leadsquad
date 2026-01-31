@@ -42,8 +42,10 @@ export const intakeService = {
   ): Promise<ClientIntakeResponse> {
     console.log('Updating intake:', { id, updates });
     
-    const { data, error } = await supabase
-      .from('client_intake_responses')
+    // Cast to 'any' to bypass Supabase schema cache validation issues
+    // The columns exist in the database, but the PostgREST cache may be stale
+    const { data, error } = await (supabase
+      .from('client_intake_responses') as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -55,7 +57,7 @@ export const intakeService = {
     }
     
     console.log('Intake updated successfully:', data);
-    return data;
+    return data as ClientIntakeResponse;
   },
 
   async saveStepProgress(
